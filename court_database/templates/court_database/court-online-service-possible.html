@@ -1,0 +1,15 @@
+{% if not court.has_detailed_feedback %}
+    <span class="badge text-bg-secondary">
+        <i class="bi bi-dash-lg"></i>
+    </span>
+{% else %}
+    {% if court.online_service_possible %}
+        <span class="badge text-bg-success">
+            <i class="bi bi-check-lg"></i>
+        </span>
+    {% else %}
+        <span class="badge text-bg-danger">
+            <i class="bi bi-x-lg"></i>
+        </span>
+    {% endif %}
+{% endif %}

@@ -1,0 +1,14 @@
+body {
+    font-family: 'Roboto', sans-serif !important;
+}
+
+#content {
+    padding: 10px;
+}
+
+#logout-form button {
+    background: none !important;
+    border: none;
+    padding: 0 !important;
+    cursor: pointer;
+}

@@ -1,0 +1,28 @@
+<h3 class="mb-3">Informationen verifizierter Nutzer:</h3>
+
+<table class="table table-hover table-striped table-bordered">
+    <tr>
+        <th>Online Service möglich</th>
+        <th>Kameraperspektiven</th>
+        <th>Konferenzsoftware</th>
+        <th>Freitext</th>
+    </tr>
+    {% for feedback in court.detailed_feedbacks %}
+        <tr>
+            <td>
+                {% if feedback.online_service_possible %}
+                    <span class="badge text-bg-success">
+                        <i class="bi bi-check-lg"></i>
+                    </span>
+                {% else %}
+                    <span class="badge text-bg-danger">
+                        <i class="bi bi-x-lg"></i>
+                    </span>
+                {% endif %}
+            </td>
+            <td>{{ feedback.camera_perspectives_text }}</td>
+            <td>{{ feedback.conferencing_software_text }}</td>
+            <td>{{ feedback.feedback }}</td>
+        </tr>
+    {% endfor %}
+</table>

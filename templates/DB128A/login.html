@@ -1,0 +1,23 @@
+{% extends "DB128A/base.html" %}
+{% load static %}
+
+{% block content %}
+    <script src="{% static "user_signup/create_password.js" %}"></script>
+    <form method="post" style="margin: 0;">
+        {% csrf_token %}
+        <div class="form-outline form-white mb-4">
+            <label class="form-label" for="id_username">Nutzername/E-Mail:</label>
+            <input class="form-control" type="text" name="username" autofocus="" autocapitalize="none" autocomplete="username" maxlength="150" required="" id="id_username">
+        </div>
+
+        <div class="form-outline form-white mb-4">
+          <label class="form-label" for="id_password">Passwort:</label>
+             <div class="input-group mb-3">
+                <input class="form-control" type="password" name="password" autocomplete="current-password" required id="id_password">
+                <span class="input-group-text" onclick="changeVisibility('id_password')" style="cursor: pointer"><i id="id_passwordEye" class="bi bi-eye-slash-fill"></i></span>
+            </div>
+        </div>
+
+        <button class="btn btn-primary btn-lg px-5" type="submit">Login</button>
+    </form>
+{% endblock %}

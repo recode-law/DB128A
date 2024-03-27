@@ -1,0 +1,41 @@
+{% extends "DB128A/base.html" %}
+{% load django_bootstrap5 %}
+
+{% block content %}
+    <form class="d-flex mb-3" role="search" method="get">
+        <input class="form-control me-2" type="search" placeholder="Suche..." aria-label="Search" name="name" value='{{ request.GET.name }}'>
+        <button class="btn btn-outline-success" type="submit">Suchen</button>
+    </form>
+    <div class="overflow-x-auto">
+        <table class="table table-hover table-striped table-bordered">
+            <tr>
+                <th>Name</th>
+                <th>Arbeitsplatz</th>
+                <th>E-Mail</th>
+                <th>Aktion</th>
+            </tr>
+            {% for signup_request in page_obj %}
+                <tr>
+                    <td>{{ signup_request.first_name }} {{ signup_request.last_name }}</td>
+                    <td>{{ signup_request.workplace }}</td>
+                    <td><a href="mailto:{{ signup_request.email }}">{{ signup_request.email }}</a></td>
+                    <td>
+                        {% if signup_request.verification_code %}
+                            <button class="btn btn-primary" onclick="navigator.clipboard.writeText(`${location.protocol}//${location.host}{% url "user-signup-verify" signup_request.verification_code %}`)">Verifizierungslink Kopieren</button>
+                        {% else %}
+                            <div class="btn-toolbar" role="toolbar">
+                                <div class="btn-group me-2" role="group">
+                                    <a type="button" class="btn btn-success" href="{% url "user-signup-accept" signup_request.pk %}"><i class="bi bi-check-lg"></i></a>
+                                </div>
+                                <div class="btn-group" role="group">
+                                    <a type="button" class="btn btn-danger" href="{% url "user-signup-reject" signup_request.pk %}"><i class="bi bi-x-lg"></i></a>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% bootstrap_pagination page_obj %}
+{% endblock %}

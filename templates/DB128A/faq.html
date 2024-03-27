@@ -1,0 +1,83 @@
+{% extends "DB128A/base.html" %}
+{% load static %}
+
+{% block content %}
+    <h1>Was ist Videoverhandlung.de?</h1>
+    <p>
+        Unser Ziel bei Videoverhandlung.de ist es, die Transformation der Justiz im digitalen Zeitalter zu begleiten.
+        Dafür wollen wir einen umfassenden Datenbestand zu Videoverhandlungen im zivilgerichtlichen Verfahren
+        gem. § 128a ZPO schaffen, der den aktuellen Stand und die Entwicklungsmöglichkeiten von Videoverhandlungen
+        sichtbar macht und eine objektive Bewertung ermöglicht.
+    </p>
+    <p>
+        Wir sind überzeugt davon, dass eine solide Datenbasis allen beteiligten Akteuren wertvolle Einblicke gewährt.
+        Diese empirischen Erkenntnisse sind unerlässlich, um die Effektivität, Zugänglichkeit und Transparenz von
+        Gerichtsverfahren in Deutschland weiter zu verbessern. Durch die Bereitstellung detaillierter und granularer
+        Daten unterstützen wir die Justiz dabei, die Vorteile der Digitalisierung voll auszuschöpfen. 
+        Videoverhandlung.de ist eine Plattform, auf der Praktiker:innen, Forscher:innen und Entscheidungsträger:innen
+        frei zugänglich Daten aggregieren und auffinden können. Wir legen großen Wert auf die Zusammenarbeit zwischen
+        diesen Stakeholdern, um den digitalen Wandel in der Justiz aktiv mitzugestalten.
+    </p>
+    
+    <h2 class="mt-4">Wer betreibt Videoverhandlung.de?</h2>
+    <p>
+        Videoverhandlung.de ist ein pro bono-Projekt, ins Leben gerufen von:
+    </p>
+    <ul>
+        <li>
+            Dr. Christian Schlicht (Richter am Landgericht, Mitgründer der digitalen richterschaft
+            <a href="https://www.digitale-richterschaft.de" target="_blank">www.digitale-richterschaft.de</a>)
+        </li>
+        <li>
+            Philipp Mayr (Fachinformatiker,
+            <a href="https://www.linkedin.com/in/philipp-mayr-552327153" target="_blank">LinkedIn</a>)
+        </li>
+        <li>
+            Mathias Schuh (Doktorand Uni Köln, Mitgründer
+            <a href="https://recode.law" target="_blank">recode.law</a>)
+        </li>
+        <li>
+            Dr. Simon J. Heetkamp, LL.M. (Professor an der TH Köln/ivwKöln, Mitgründer der digitalen richterschaft
+            <a href="https://www.digitale-richterschaft.de" target="_blank">www.digitale-richterschaft.de</a>,
+            <a href="https://www.linkedin.com/in/simon-j-heetkamp-bb307b89" target="_blank">LinkedIn</a>)
+        </li>
+    </ul>
+
+    <h2 class="mt-4">Ist ein Account erforderlich?</h2>
+    <p>
+        Nein. Sie können Ihre Erkenntnisse auf der Seite des jeweiligen Gerichts ohne Account eintragen. Wir überprüfen
+        die Angaben vor der Freigabe nach intern festgelegten Richtlinien, um valide Informationen zu veröffentlichen.
+    </p>
+
+    <h2 class="mt-4">Sollte ich einen Account erstellen?</h2>
+    <p>
+        Ein Account ist sinnvoll, wenn Sie beruflich mit Videoverhandlungen befasst sind und zu einzelnen oder mehreren
+        Gerichten umfassend und/oder fortwährend Erkenntnisse mitteilen möchten. Ihre Identität wird von uns einmalig
+        verifiziert. Anschließend müssen die Einträge nicht mehr gesondert freigegeben werden. Zudem haben verifizierte
+        Nutzer:innen die Möglichkeit, textbasierte Zusatzinformationen zu einzelnen Gerichten zu erstellen.
+    </p>
+
+    <h2 class="mt-4">Wie erhalte ich einen Account?</h2>
+    <p>
+        Für einen Account muss das <a href="{% url "user-signup-request" %}">Registrierungsformular</a> ausgefüllt
+        werden. Nach Eingabe der Kontaktdaten kontaktieren wir Sie.
+    </p>
+
+    <h2 class="mt-4">Ist Ihnen ein Fehler aufgefallen?</h2>
+    <p>
+        Fehlt ein Gericht? Sind bestimmte Informationen unzutreffend? Kontaktieren Sie und gerne unter
+        <a href="mailto:kontakt@videoverhandlung.de">kontakt@videoverhandlung.de</a>.
+    </p>
+
+    <h2 class="mt-4">Ich habe weitere Fragen!</h2>
+    <p>
+        Wir helfen gerne unter <a href="mailto:kontakt@videoverhandlung.de">kontakt@videoverhandlung.de</a> weiter! Wer
+        uns unterstützen möchte, kann sich ebenfalls gerne melden.
+    </p>
+
+    <h2 class="mt-4">Unterstützung</h2>
+    <p>
+        Videoverhandlung.de wird unterstützt von<br>
+        <a href="https://recode.law" target="_blank"><img style="max-width:50%; max-height:100%;" src="{% static 'DB128A/recode_logo.png' %}" alt="recode.law logo"></a>
+    </p>
+{% endblock %}

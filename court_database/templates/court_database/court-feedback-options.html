@@ -1,0 +1,53 @@
+{% load static %}
+{% load common_tags %}
+{% load cookiebanner %}
+
+{% cookie_accepted 'essential' as cookie_essential %}
+
+<link href="{% static "court_database/court-feedback-options.css" %}" rel="stylesheet">
+<script src="{% static "court_database/court-feedback-options.js" %}"></script>
+
+<div class="btn-group" role="group" aria-label="Voting Buttons">
+    <button type="button" class="btn btn-success" onclick="document.getElementById('court-{{ court.id }}-positive-modal').showModal()">Antrag wurde gestattet</button>
+    <button type="button" class="btn btn-danger" onclick="document.getElementById('court-{{ court.id }}-negative-modal').showModal()">Antrag wurde abgelehnt</button>
+    {% if request.user|is_member:"Verifiziert" %}
+        <a class="btn btn-primary" href="{% url "court-database-create-detailed-feedback" court.pk %}">Ausführlich Bewerten</a>
+    {% endif %}
+</div>
+
+<dialog id="court-{{ court.id }}-positive-modal">
+    <button class="btn btn-primary mb-3" onclick="document.getElementById('court-{{ court.id }}-positive-modal').close()">Schließen</button>
+    <form method="post" action="{% url "court-database-good-feedback" court.pk %}">
+        {% if cookie_essential %}
+            {% csrf_token %}
+        {% endif %}
+        <label class="form-label mb-0">Qualität (Optional):</label>
+        <div class="rate">
+            <input type="radio" id="court-{{ court.id }}-star5" name="quality" value="5" /><label for="court-{{ court.id }}-star5" title="5">5</label>
+            <input type="radio" id="court-{{ court.id }}-star4" name="quality" value="4" /><label for="court-{{ court.id }}-star4" title="4">4</label>
+            <input type="radio" id="court-{{ court.id }}-star3" name="quality" value="3" /><label for="court-{{ court.id }}-star3" title="3">3</label>
+            <input type="radio" id="court-{{ court.id }}-star2" name="quality" value="2" /><label for="court-{{ court.id }}-star2" title="2">2</label>
+            <input type="radio" id="court-{{ court.id }}-star1" name="quality" value="1" /><label for="court-{{ court.id }}-star1" title="1">1</label>
+        </div>
+        <button class="btn btn-primary" type="submit">Senden</button>
+    </form>
+</dialog>
+
+<dialog id="court-{{ court.id }}-negative-modal">
+    <button class="btn btn-primary mb-3" onclick="document.getElementById('court-{{ court.id }}-negative-modal').close()">Schließen</button>
+    <form method="post" action="{% url "court-database-bad-feedback" court.pk %}">
+        {% if cookie_essential %}
+            {% csrf_token %}
+        {% endif %}
+        <label for="court-{{ court.id }}-reason" class="form-label">Grund:</label>
+        <select class="form-select mb-3" id="court-{{ court.id }}-reason" name="reason" required aria-label="Reason select" onchange="onReasonChange(this, {{ court.id }});">
+            <option disabled selected value="">Grund...</option>
+            {% for reason in reasons %}
+                <option value="{{ reason.0 }}">{{ reason.1 }}</option>
+            {% endfor %}
+            <option value="other">Sonstiges...</option>
+        </select>
+        <div class="mb-3" id="court-{{ court.id }}-otherReasonBox"></div>
+        <button class="btn btn-primary" type="submit">Senden</button>
+    </form>
+</dialog>

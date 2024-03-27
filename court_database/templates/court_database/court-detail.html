@@ -1,0 +1,59 @@
+{% extends "DB128A/base.html" %}
+{% load static %}
+
+{% block content %}
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="{% static "court_database/court-detail.js" %}"></script>
+
+    <h1>{{ court.name }}</h1>
+
+    <div class="row mb-3">
+        <div class="col-sm-4"><p class="mb-0">Technische Ausstattung vorhanden?</p></div>
+        <div class="col-sm-8">{% include "court_database/court-online-service-possible.html" %}</div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-sm-4"><p class="mb-0">Technische Qualität:</p></div>
+        <div class="col-sm-8">{% include "court_database/court-online-service-quality.html" with width=200 %}</div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-sm-4"><p class="mb-0">Antrag auf Videoverhandlung stattgegeben?</p></div>
+        <div class="col-sm-8">{% include "court_database/court-provides-online-service.html" %}</div>
+    </div>
+
+    {% if court.has_rejection_feedback %}
+        <div class="row">
+            <div class="col">
+                <div id="rejection_chart" style="width: 100%; height: 500px;"></div>
+            </div>
+        </div>
+    {% endif %}
+
+    <p>
+        Sie können Ihre Erkenntnisse zu diesem Gericht gerne mitteilen. Die Angabe, ob die technische Ausstattung für
+        eine Videoverhandlung an diesem Gericht vorhanden ist, und textbasierte Informationen können jedoch nur durch
+        verifizierte Nutzer:innen abgegeben werden. Ohne einen Account können Sie mitteilen, ob Ihnen eine
+        Videoverhandlung gestattet wurde und - optional - wie Sie die technische Qualität der durchgeführten
+        Videoverhandlung beurteilen. Wenn Sie keine Aussage zur technischen Qualität treffen möchten, wählen Sie die
+        Sternesymbole nicht an. Sofern eine beantragte Videoverhandlung abgelehnt wurde, können Sie die Gründe in einer
+        Folgeabfrage angeben.
+    </p>
+
+    <div class="my-3">
+        {% include "court_database/court-feedback-options.html" %}
+    </div>
+
+    {% if court.has_detailed_feedback %}
+        {% include "court_database/court-detailed-feedback.html" %}
+    {% endif %}
+
+    {% if court.has_rejection_feedback %}
+        <script>
+            google.charts.load('current', {'packages':['corechart']});
+            google.charts.setOnLoadCallback(function () {
+                drawChart({{ court.get_rejection_chart_data|safe }});
+            });
+        </script>
+    {% endif %}
+{% endblock %}

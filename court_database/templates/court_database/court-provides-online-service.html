@@ -1,0 +1,13 @@
+<div style="display: grid;">
+    <div style="display: flex; grid-area: 1/1;">
+        <div style="width: {{ court.provides_online_service_yes_percentage }}%; background-color: var(--bs-green); color: transparent;">.</div>
+        <div style="width: {{ court.provides_online_service_no_percentage }}%; background-color: var(--bs-red); color: transparent;">.</div>
+    </div>
+    <div style="display: flex; grid-area: 1/1;">
+        <div style="width: 5px; margin: auto; background-color: var(--bs-black); color: transparent;">.</div>
+    </div>
+    <div style="display: flex; grid-area: 1/1; padding: 0 5px;">
+        <div style="width: 50%; background-color: transparent; color: var(--bs-black);">{{ court.provides_online_service_yes_count }}</div>
+        <div style="width: 50%; background-color: transparent; color: var(--bs-black); text-align: end;">{{ court.provides_online_service_no_count }}</div>
+    </div>
+</div>

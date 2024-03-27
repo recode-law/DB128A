@@ -1,0 +1,11 @@
+{% load static %}
+{% load l10n %}
+{% load mathfilters %}
+
+{% if court.online_service_quality != 0 %}
+    <div style="width: {{ width }}px; height: {{ width|div:5|unlocalize }}px; mask: url('{% static "court_database/star.svg" %}'); mask-size: 20%; mask-repeat: repeat-x;">
+        <div style="width: {{ court.online_service_quality|div:0.05|unlocalize }}%; height: 100%; background-color: var(--bs-yellow); color: transparent;)">.</div>
+    </div>
+{% else %}
+    <p class="m-0">Keine Qualitätsbewertungen</p>
+{% endif %}

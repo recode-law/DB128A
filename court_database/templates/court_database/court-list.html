@@ -1,0 +1,118 @@
+{% extends "DB128A/base.html" %}
+{% load pagination_tags %}
+{% load django_bootstrap5 %}
+{% load static %}
+{% load mathfilters %}
+{% load l10n %}
+
+{% block content %}
+    <p>
+        Auf Videoverhandlung.de können Sie sich informieren, an welchen Gerichten in Deutschland die technischen
+        Voraussetzungen für eine Videoverhandlung vorliegen, wie Teilnehmer:innen die technische Qualität beurteilen,
+        in wie vielen der erfassten Fälle Onlineverhandlungen gestattet oder abgelehnt wurden und aus welchen
+        Gründen.
+    </p>
+    <p>
+        Sofern Ihnen Erkenntnisse hierzu vorliegen, können Sie diese bei dem jeweiligen Gericht eintragen.
+        Ihre Angaben werden nach internen Vorgaben vor der Veröffentlichung überprüft, sofern Sie als Person nicht vorab
+        durch uns <a href="{% url "user-signup-request" %}">verifiziert wurden</a>.
+    </p>
+    <p>Weitere Informationen finden Sie in unserem <a href="{% url "faq" %}">FAQ</a>.</p>
+    <h1>Gerichte</h1>
+    <form role="search" method="get">
+        <div class="row mt-3">
+            <div class="col-12 d-flex">
+                <input class="form-control me-2" type="search" placeholder="Suche..." aria-label="Suche" name="name" value='{{ request.GET.name }}'>
+                <button class="btn btn-outline-success me-2" type="submit">Suchen</button>
+                <button class="btn btn-outline-danger" type="button" onclick="location.href='/'">Zurücksetzen</button>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-3 mt-3">
+                <label for="court_state">Bundesland:</label>
+                <select id="court_state" name="court_state" class="form-select" aria-label="Bundesland Auswahl">
+                    <option value="-">Alle</option>
+                    {% for state in states %}
+                        <option value="{{ state.0 }}" {% if request.GET.court_state == state.0 %}selected{% endif %}>{{ state.1 }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 mt-3">
+                <label for="court_type">Art:</label>
+                <select id="court_type" name="court_type" class="form-select" aria-label="Gerichtsart Auswahl">
+                    <option value="-">Alle</option>
+                    {% for court_type in court_types %}
+                        <option value="{{ court_type.0 }}" {% if request.GET.court_type == court_type.0 %}selected{% endif %}>{{ court_type.1 }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 mt-3">
+                <label for="online_service_possible">Ausstattung vorhanden:</label>
+                <select id="online_service_possible" name="online_service_possible" class="form-select" aria-label="Ausstattung vorhanden Auswahl">
+                    <option value="-">Alle</option>
+                    <option value="True" {% if request.GET.online_service_possible == "True" %}selected{% endif %}>Ja</option>
+                    <option value="False" {% if request.GET.online_service_possible == "False" %}selected{% endif %}>Nein</option>
+                </select>
+            </div>
+            <div class="col-md-3 mt-3">
+                <label for="provides_online_service">Videoverhandlung stattgegeben:</label>
+                <select id="provides_online_service" name="provides_online_service" class="form-select" aria-label="Videoverhandlung stattgegeben Auswahl">
+                    <option value="-">Alle</option>
+                    <option value="True" {% if request.GET.provides_online_service == "True" %}selected{% endif %}>Ja</option>
+                    <option value="False" {% if request.GET.provides_online_service == "False" %}selected{% endif %}>Nein</option>
+                </select>
+            </div>
+        </div>
+    </form>
+    <div class="overflow-x-auto">
+        <table class="table table-hover table-striped table-bordered">
+            <tr>
+                <th>Gericht</th>
+                <th>Technische Ausstattung vorhanden?</th>
+                <th>Technische Qualität</th>
+                <th>Antrag auf Videoverhandlung stattgegeben?</th>
+                <th>Ablehnungsgründe</th>
+            </tr>
+            {% for court in page_obj %}
+                <tr style="cursor: pointer;" onclick="window.location.href='{% url 'court-database-court-detail' court.pk %}'">
+                    <td>{{ court.name }}</td>
+                    <td>
+                        <div style="display: flex">
+                            <div class="mx-auto">
+                                {% include "court_database/court-online-service-possible.html" %}
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        {% include "court_database/court-online-service-quality.html" with width=100 %}
+                    </td>
+                    <td>
+                        {% include "court_database/court-provides-online-service.html" %}
+                    </td>
+                    <td>
+                        <div style="display: flex">
+                            <div class="mx-auto">
+                                {% if court.has_rejection_feedback %}
+                                    {{ court.number_of_rejection_feedbacks }}
+                                    {% if court.number_of_rejection_feedbacks == 1 %}
+                                        Grund
+                                    {% else %}
+                                        Gründe
+                                    {% endif %}| Mehr
+                                {% else %}
+                                    <span class="badge text-bg-secondary">
+                                        <i class="bi bi-dash-lg"></i>
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <div class="overflow-x-auto">
+        {% bootstrap_pagination page_obj url=request|create_pagination_url %}
+    </div>
+
+{% endblock %}

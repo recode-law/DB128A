@@ -1,0 +1,16 @@
+{% extends "DB128A/base.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+
+{% block content %}
+    <script src="{% static "court_database/court-feedback.js" %}"></script>
+    <form method="post">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        <button type="submit" class="btn btn-primary">Senden</button>
+    </form>
+    <script>
+        document.getElementById('id_online_service_possible').addEventListener('click', update_choice_visibility);
+        update_choice_visibility();
+    </script>
+{% endblock %}

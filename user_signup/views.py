@@ -92,6 +92,14 @@ def signup_request_reject(request, sr_id):
     return HttpResponseRedirect(reverse("user-signup-list"))
 
 
+@login_required
+@user_passes_test(lambda user: is_member(user, "Verifizierer"))
+def signup_request_send_mail(request, sr_id):
+    signup_request = SignupRequest.objects.get(pk=sr_id)
+    signup_request.send_mail(request)
+    return HttpResponseRedirect(reverse("user-signup-list"))
+
+
 def signup_request_verify(request, code):
     try:
         free_text = b64decode(code.encode()).decode()

@@ -1,5 +1,8 @@
 from django.db import models, IntegrityError
 from django.contrib.auth.models import Group, AbstractUser
+from django.core import mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 from base64 import b64encode
 import secrets
 import string
@@ -64,3 +67,16 @@ class SignupRequest(models.Model):
 
     def reject(self):
         self.delete()
+
+    def send_mail(self, request):
+        subject = 'Videoverhandlung.de Verifikation'
+        html_message = render_to_string('user_signup/mail_template.html', {
+            'signup_request': self,
+            'url_base': f'{request.scheme}://{request.get_host()}',
+            'sender': f'{request.user.first_name} {request.user.last_name}'
+        })
+        plain_message = strip_tags(html_message)
+        from_email = 'Videoverhandlung.de <kontakt@videoverhandlung.de>'
+        to = self.email
+
+        mail.send_mail(subject, plain_message, from_email, [to], html_message=html_message)

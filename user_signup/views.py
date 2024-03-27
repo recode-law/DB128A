@@ -137,8 +137,8 @@ def signup_request_verify(request, code):
                 "user": user,
                 "title": "Passworterstellung"
             })
-    except (UnicodeDecodeError, IndexError, SignupRequest.DoesNotExist):
-        pass
+    except (UnicodeDecodeError, IndexError, SignupRequest.DoesNotExist, User.DoesNotExist):
+        return HttpResponseRedirect(reverse("user-signup-error"))
 
     return HttpResponseRedirect("/")
 

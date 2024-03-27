@@ -78,9 +78,9 @@ class ConferencingSoftware(models.Model):
 
 class Address(models.Model):
     state = models.CharField(verbose_name="Staat", max_length=2, choices=States.choices)
-    city = models.CharField(verbose_name="Ort", max_length=100)
-    postal_code = models.CharField(verbose_name="Postleitzahl", max_length=5)
-    street = models.CharField(verbose_name="Straße", max_length=100)
+    city = models.CharField(verbose_name="Ort", max_length=100, blank=True)
+    postal_code = models.CharField(verbose_name="Postleitzahl", max_length=5, blank=True)
+    street = models.CharField(verbose_name="Straße", max_length=100, blank=True)
 
     class Meta:
         verbose_name = "Adresse"

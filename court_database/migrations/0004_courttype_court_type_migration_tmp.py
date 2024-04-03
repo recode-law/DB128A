@@ -50,7 +50,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='court',
             name='type_migration_tmp',
-            field=models.ForeignKey(default=0, on_delete=django.db.models.deletion.PROTECT, to='court_database.courttype', verbose_name='Art'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='court_database.courttype', verbose_name='Art', null=True),
             preserve_default=False,
         ),
         migrations.RunPython(create_default_court_types),

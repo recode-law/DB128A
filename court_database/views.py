@@ -23,7 +23,7 @@ class CourtListView(ListView):
                 object_list = object_list.filter(address__state=court_state)
         if court_type := self.request.GET.get('court_type'):
             if court_type != '-':
-                object_list = object_list.filter(type=court_type)
+                object_list = object_list.filter(type=CourtType.objects.get(id=court_type))
         if online_service_possible := self.request.GET.get('online_service_possible'):
             if online_service_possible == 'True':
                 object_list = object_list.filter(online_service_possible_attr=True)
@@ -41,7 +41,7 @@ class CourtListView(ListView):
         context = super().get_context_data(**kwargs)
         context["title"] = f"Videoverhandlungen an deutschen Gerichten | Seite {context['page_obj'].number}"
         context["states"] = States.choices
-        #context["court_types"] = CourtType.choices
+        context["court_types"] = CourtType.objects.all()
         return context
 
 

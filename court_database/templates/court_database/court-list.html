@@ -42,7 +42,8 @@
                 <select id="court_type" name="court_type" class="form-select" aria-label="Gerichtsart Auswahl">
                     <option value="-">Alle</option>
                     {% for court_type in court_types %}
-                        <option value="{{ court_type.0 }}" {% if request.GET.court_type == court_type.0 %}selected{% endif %}>{{ court_type.1 }}</option>
+                        {# court_type.id must be converted to string in the test because request.GET.court_type is a string as well #}
+                        <option value="{{ court_type.id }}" {% if request.GET.court_type == court_type.id|stringformat:"i" %}selected{% endif %}>{{ court_type.name }}</option>
                     {% endfor %}
                 </select>
             </div>

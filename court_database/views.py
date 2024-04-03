@@ -41,7 +41,7 @@ class CourtListView(ListView):
         context = super().get_context_data(**kwargs)
         context["title"] = f"Videoverhandlungen an deutschen Gerichten | Seite {context['page_obj'].number}"
         context["states"] = States.choices
-        context["court_types"] = CourtType.choices
+        #context["court_types"] = CourtType.choices
         return context
 
 

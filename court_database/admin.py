@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django_object_actions import DjangoObjectActions, action
 
-from .models import Address, Court, Feedback, DetailedFeedback, CameraPerspective, ConferencingSoftware, RejectionReason
+from .models import (Address, Court, CourtType, Feedback, DetailedFeedback, CameraPerspective, ConferencingSoftware,
+                     RejectionReason)
 
 
 class AddressAdmin(admin.ModelAdmin):
@@ -112,6 +113,7 @@ class DetailedFeedbackAdmin(admin.ModelAdmin):
 
 admin.site.register(Address, AddressAdmin)
 admin.site.register(Court, CourtAdmin)
+admin.site.register(CourtType)
 admin.site.register(Feedback, FeedbackAdmin)
 admin.site.register(DetailedFeedback, DetailedFeedbackAdmin)
 admin.site.register(CameraPerspective)

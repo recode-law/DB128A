@@ -28,19 +28,23 @@ class States(models.TextChoices):
     TH = 'TH', _('Thüringen')
 
 
-class CourtType(models.TextChoices):
-    BG = 'BG', _('Bundesgericht')
-    OG = 'OG', _('Oberlandesgericht')
-    LG = 'LG', _('Landgericht')
-    AG = 'AG', _('Amtsgericht')
-
-
 class QualityChoices(models.IntegerChoices):
     Q1 = 1, _('Quality 1')
     Q2 = 2, _('Quality 2')
     Q3 = 3, _('Quality 3')
     Q4 = 4, _('Quality 4')
     Q5 = 5, _('Quality 5')
+
+
+class CourtType(models.Model):
+    name = models.CharField(verbose_name="Name", unique=True, max_length=100)
+
+    class Meta:
+        verbose_name = "Gerichtsart"
+        verbose_name_plural = "Gerichtsarten"
+
+    def __str__(self):
+        return self.name
 
 
 class RejectionReason(models.Model):
@@ -92,7 +96,7 @@ class Address(models.Model):
 
 class Court(models.Model):
     name = models.CharField(verbose_name="Name", max_length=200)
-    type = models.TextField(verbose_name="Art", max_length=2, choices=CourtType.choices)
+    type = models.ForeignKey(verbose_name="Art", to=CourtType, on_delete=models.PROTECT)
     address = models.ForeignKey(verbose_name="Adresse", to=Address, on_delete=models.PROTECT, null=True, blank=True)
     parent = models.ForeignKey(verbose_name="Übergeordnet", to="self", on_delete=models.PROTECT, null=True, blank=True)
 

@@ -28,9 +28,15 @@
                                     </button>
                                 </div>
                                 <div class="btn-group" role="group">
-                                    <a type="button" class="btn btn-primary" href="{% url "user-signup-send-mail" signup_request.pk %}">
-                                        <i class="bi bi-envelope me-2"></i>Verifizierungslink Versenden
-                                    </a>
+                                    {% if signup_request.email_sent %}
+                                        <a type="button" class="btn btn-warning" href="{% url "user-signup-send-mail" signup_request.pk %}">
+                                            <i class="bi bi-envelope me-2"></i>Verifizierungslink Erneut Versenden
+                                        </a>
+                                    {% else %}
+                                        <a type="button" class="btn btn-primary" href="{% url "user-signup-send-mail" signup_request.pk %}">
+                                            <i class="bi bi-envelope me-2"></i>Verifizierungslink Versenden
+                                        </a>
+                                    {% endif %}
                                 </div>
                             </div>
                         {% else %}

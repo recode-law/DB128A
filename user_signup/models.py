@@ -26,6 +26,7 @@ class SignupRequest(models.Model):
     email = models.EmailField(verbose_name="E-Mail")
     user = models.ForeignKey(verbose_name="Benutzer", to=User, null=True, blank=True, on_delete=models.PROTECT)
     verification_code = models.TextField(verbose_name="Verifikationscode", null=True, blank=True)
+    email_sent = models.BooleanField(verbose_name="E-Mail versendet", default=False)
 
     class Meta:
         verbose_name = "Accounterstellungsanfrage"
@@ -80,3 +81,6 @@ class SignupRequest(models.Model):
         to = self.email
 
         mail.send_mail(subject, plain_message, from_email, [to], html_message=html_message)
+
+        self.email_sent = True
+        self.save()

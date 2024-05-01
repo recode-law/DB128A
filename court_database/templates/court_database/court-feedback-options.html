@@ -11,7 +11,7 @@
     <button type="button" class="btn btn-success" onclick="document.getElementById('court-{{ court.id }}-positive-modal').showModal()">Antrag wurde gestattet</button>
     <button type="button" class="btn btn-danger" onclick="document.getElementById('court-{{ court.id }}-negative-modal').showModal()">Antrag wurde abgelehnt</button>
     {% if request.user|is_member:"Verifiziert" %}
-        <a class="btn btn-primary" href="{% url "court-database-create-detailed-feedback" court.pk %}">Ausführlich Bewerten</a>
+        <a class="btn btn-primary" href="{% url "court-database-create-detailed-feedback" court.pk %}">Ausführlich bewerten</a>
     {% endif %}
 </div>
 

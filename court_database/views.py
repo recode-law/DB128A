@@ -61,37 +61,39 @@ class CourtDetailView(DetailView):
 
 
 def submit_positive_feedback(request, court_id):
-    court = Court.objects.get(pk=court_id)
-    feedback = Feedback()
-    feedback.court = court
-    feedback.provides_online_service = True
+    if request.method == 'POST':
+        court = Court.objects.get(pk=court_id)
+        feedback = Feedback()
+        feedback.court = court
+        feedback.provides_online_service = True
 
-    quality = request.POST.get('quality', None)
-    if quality is not None:
-        feedback.online_service_quality = int(quality)
+        quality = request.POST.get('quality', None)
+        if quality is not None:
+            feedback.online_service_quality = int(quality)
 
-    feedback.creator_ip = request.META.get('REMOTE_ADDR')
-    feedback.save()
-    court.update_feedback_buffers()
+        feedback.creator_ip = request.META.get('REMOTE_ADDR')
+        feedback.save()
+        court.update_feedback_buffers()
     return HttpResponseRedirect(reverse("court-database-court-detail", args=[court_id]))
 
 
 def submit_negative_feedback(request, court_id):
-    court = Court.objects.get(pk=court_id)
-    feedback = Feedback()
-    feedback.court = court
-    feedback.provides_online_service = False
+    if request.method == 'POST':
+        court = Court.objects.get(pk=court_id)
+        feedback = Feedback()
+        feedback.court = court
+        feedback.provides_online_service = False
 
-    reason_id = request.POST.get('reason', None)
-    if reason_id == 'other':
-        feedback.other_rejection_reason = request.POST.get('otherReason', None)
-    else:
-        rejection_reason = RejectionReason.objects.get(id=reason_id)
-        feedback.rejection_reason = rejection_reason
+        reason_id = request.POST.get('reason', None)
+        if reason_id == 'other':
+            feedback.other_rejection_reason = request.POST.get('otherReason', None)
+        else:
+            rejection_reason = RejectionReason.objects.get(id=reason_id)
+            feedback.rejection_reason = rejection_reason
 
-    feedback.creator_ip = request.META.get('REMOTE_ADDR')
-    feedback.save()
-    court.update_feedback_buffers()
+        feedback.creator_ip = request.META.get('REMOTE_ADDR')
+        feedback.save()
+        court.update_feedback_buffers()
     return HttpResponseRedirect(reverse("court-database-court-detail", args=[court_id]))
 
 

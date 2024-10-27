@@ -16,6 +16,7 @@ from django.utils.html import format_html
 from django.views.generic import ListView
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.contrib.auth.password_validation import validate_password
+from django.db.models import Q
 
 from .models import SignupRequest
 from helper.helper import is_member
@@ -65,7 +66,12 @@ class SignupRequestListView(UserPassesTestMixin, LoginRequiredMixin, ListView):
     def get_queryset(self):
         name = self.request.GET.get("name")
         if name:
-            object_list = self.model.objects.filter(name__icontains=name)
+            object_list = self.model.objects.filter(
+                Q(first_name__icontains=name) |
+                Q(last_name__icontains=name) |
+                Q(workplace__icontains=name) |
+                Q(email__icontains=name)
+            )
         else:
             object_list = self.model.objects.all()
         return object_list

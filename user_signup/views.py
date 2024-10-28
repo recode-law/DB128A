@@ -1,3 +1,5 @@
+import binascii
+
 import requests
 from base64 import b64decode
 
@@ -18,7 +20,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.contrib.auth.password_validation import validate_password
 from django.db.models import Q
 
-from .models import SignupRequest
+from .models import SignupRequest, PasswordResetRequest
 from helper.helper import is_member
 
 
@@ -117,7 +119,7 @@ def signup_request_verify(request, code):
                 password = request.POST.get("password")
 
                 try:
-                    validate_password(password)
+                    validate_password(password, user)
                 except ValidationError as e:
                     return render(request, "user_signup/create_password.html", {
                         "username": username,
@@ -160,3 +162,43 @@ def passes_friendly_captcha_check(captcha_token) -> bool:
         mail_admins("There was an error with friendlycaptcha.", str(response_data))
         return True
     return response_data["success"]
+
+
+def reset_password(request, code):
+    try:
+        free_text = b64decode(code.encode()).decode()
+        username = free_text.split("_$_")[0]
+        user = User.objects.get(username=username)
+        reset_request = PasswordResetRequest.objects.get(user=user)
+        if reset_request.verification_code == code:
+            if request.method == "POST":
+                password = request.POST.get("password")
+
+                try:
+                    validate_password(password, user)
+                except ValidationError as e:
+                    return render(request, "user_signup/reset_password.html",{
+                        "title": "Passwort zurücksetzen",
+                        "pv_error": format_html("<br>".join(e.messages))
+                    })
+
+                password_repeat = request.POST.get("passwordRepeat")
+
+                if password != password_repeat:
+                    return render(request, "user_signup/reset_password.html", {
+                        "title": "Passwort zurücksetzen",
+                        "pv_error": "Die Passwörter stimmen nicht überein!"
+                    })
+
+                user.set_password(password)
+                user.save()
+                reset_request.delete()
+                return HttpResponseRedirect(reverse("login"))
+            return render(request, "user_signup/reset_password.html", {
+                "title": "Passwort zurücksetzen"
+            })
+
+    except (UnicodeDecodeError, IndexError, PasswordResetRequest.DoesNotExist, User.DoesNotExist, binascii.Error):
+        return HttpResponseRedirect(reverse("user-signup-error"))
+
+    return HttpResponseRedirect("/")

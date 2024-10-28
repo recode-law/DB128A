@@ -84,3 +84,35 @@ class SignupRequest(models.Model):
 
         self.email_sent = True
         self.save()
+
+
+class PasswordResetRequest(models.Model):
+    user = models.ForeignKey(verbose_name="Benutzer", to=User, on_delete=models.PROTECT)
+    verification_code = models.TextField(verbose_name="Verifikationscode")
+
+    class Meta:
+        verbose_name = "Passwort-Zurücksetzen-Anfrage"
+        verbose_name_plural = "Passwort-Zurücksetzen-Anfragen"
+
+    @staticmethod
+    def create_request(user):
+        if PasswordResetRequest.objects.filter(user=user).exists():
+            raise ValueError(f"A password reset request already exists for {user.username}.")
+
+        reset_request = PasswordResetRequest()
+        reset_request.user = user
+        reset_request.verification_code = generate_verification_code(user.username)
+        reset_request.save()
+        return reset_request
+
+    def send_mail(self, request):
+        subject = 'Videoverhandlung.de Passwort Reset'
+        html_message = render_to_string('user_signup/password_reset_mail_template.html', {
+            'reset_request': self,
+            'url_base': f'{request.scheme}://{request.get_host()}'
+        })
+        plain_message = strip_tags(html_message)
+        from_email = 'Videoverhandlung.de <kontakt@videoverhandlung.de>'
+        to = self.user.email
+
+        mail.send_mail(subject, plain_message, from_email, [to], html_message=html_message)

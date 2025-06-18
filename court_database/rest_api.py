@@ -13,13 +13,13 @@ def get_rest_api_info(base_url: str):
     return [
         {
             "id": "create-court",
-            "title": "Create Court",
+            "title": "Gericht erstellen",
             "method": "POST",
             "url": f"{base_url}{reverse('court-database-restapi-court')}",
             "description": "Erstellt ein neues Gericht in der Datenbank.",
             "request_schema": json.dumps({
                 "name": "<Name des Gerichts>",
-                "type": "<ID des Gerichttyps>",
+                "type": "<ID der Gerichtsart>",
                 "parent": "<ID des übergeordneten Gerichts>",
                 "address": {
                     "state": "<Bundesland>",
@@ -34,7 +34,7 @@ def get_rest_api_info(base_url: str):
         },
         {
             "id": "get-court-ids",
-            "title": "Get Court IDs",
+            "title": "Gericht IDs abfragen",
             "method": "GET",
             "url": f"{base_url}{reverse('court-database-restapi-court')}",
             "description": "Gibt eine paginierte Liste von Gerichts-IDs und Namen zurück.",
@@ -55,7 +55,7 @@ def get_rest_api_info(base_url: str):
         },
         {
             "id": "get-court-info",
-            "title": "Get Court Info",
+            "title": "Gerichtsinformationen abfragen",
             "method": "GET",
             "url": f"{base_url}{reverse('court-database-restapi-court-detail')}?ids=<comma-separated-ids>",
             "description": f"Gibt detaillierte Informationen zu den spezifizierten Gerichten zurück. Maximal {settings.COURT_LIST_LIMIT} Gerichte können abgefragt werden.",
@@ -65,7 +65,7 @@ def get_rest_api_info(base_url: str):
                     {
                         "id": "<ID des Gerichts>",
                         "name": "<Name des Gerichts>",
-                        "type": "<ID des Gerichttyps>",
+                        "type": "<ID der Gerichtart>",
                         "parent": "<ID des übergeordneten Gerichts>",
                         "address": {
                             "state": "<Bundesland>",
@@ -73,8 +73,8 @@ def get_rest_api_info(base_url: str):
                             "postal_code": "<Postleitzahl>",
                             "street": "<Straße und Hausnummer>"
                         },
-                        "online_service_possible": "<Ob Videoverhandlungen möglich sind>",
                         "provides_online_service": "<Ob Videoverhandlungen angeboten werden>",
+                        "online_service_possible": "<Ob Videoverhandlungen möglich sind>",
                         "feedbacks": [
                             {
                                 "provides_online_service": "<Ob Videoverhandlungen angeboten werden>",
@@ -98,34 +98,34 @@ def get_rest_api_info(base_url: str):
         },
         {
             "id": "create-court-type",
-            "title": "Create Court Type",
+            "title": "Gerichtsart erstellen",
             "method": "POST",
             "url": f"{base_url}{reverse('court-database-restapi-court-type')}",
-            "description": "Erstellt einen neuen Gerichtstyp in der Datenbank.",
+            "description": "Erstellt eine neue Gerichtsart in der Datenbank.",
             "request_schema": json.dumps({
-                "name": "<Name des Gerichtstyps>"
+                "name": "<Name der Gerichtsart>"
             }, indent=2, ensure_ascii=False),
             "response_schema": json.dumps({
-                "id": "<ID des neuen Gerichtstyps>"
+                "id": "<ID der neuen Gerichtsart>"
             }, indent=2, ensure_ascii=False),
         },
         {
             "id": "get-court-types",
-            "title": "Get Court Types",
+            "title": "Gerichtsarten abfragen",
             "method": "GET",
             "url": f"{base_url}{reverse('court-database-restapi-court-type')}",
-            "description": "Gibt eine Liste aller Gerichtstypen zurück.",
+            "description": "Gibt eine Liste aller Gerichtsarten zurück.",
             "request_schema": None,
             "response_schema": json.dumps([
                 {
-                    "id": "<ID des Gerichtstyps>",
-                    "name": "<Name des Gerichtstyps>"
+                    "id": "<ID der Gerichtsart>",
+                    "name": "<Name der Gerichtsart>"
                 }
             ], indent=2, ensure_ascii=False),
         },
         {
             "id": "get-states",
-            "title": "Get States",
+            "title": "Bundesländer abfragen",
             "method": "GET",
             "url": f"{base_url}{reverse('court-database-restapi-state')}",
             "description": "Gibt eine Liste aller Bundesländer zurück.",
@@ -221,8 +221,8 @@ def get_court_detail(data: dict):
                     "postal_code": court.address.postal_code,
                     "street": court.address.street
                 } if court.address else None,
-                "online_service_possible": court.online_service_possible_attr,
                 "provides_online_service": court.provides_online_service_attr,
+                "online_service_possible": court.online_service_possible_attr,
                 "feedbacks": [feedback.to_dict() for feedback in court.feedback_set.all()],
                 "detailed_feedbacks": [feedback.to_dict() for feedback in court.detailedfeedback_set.all()]
             } for court in courts

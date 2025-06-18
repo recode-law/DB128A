@@ -6,7 +6,7 @@
     <p>
         Die Videoverhandlung.de REST API ist für <a href="{% url "user-signup-request" %}">verifizierte Nutzer</a> verfügbar.
     </p>
-    <div class="d-flex flex-column gap-4 align-items-center">
+    <div class="d-flex flex-column gap-4 align-items-center my-3">
         {% for api in apis %}
             {% include "court_database/api-description.html" %}
         {% endfor %}

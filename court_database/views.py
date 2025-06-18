@@ -1,11 +1,21 @@
+import json
+
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
+from django.core.paginator import EmptyPage
+from django.http import HttpResponse
 from django.urls import reverse
-from django.views.generic import ListView, DetailView, CreateView
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import ListView, DetailView, CreateView, TemplateView
+from django.views.decorators.http import require_http_methods
 from django.http.response import HttpResponseRedirect
+from django.db import IntegrityError
 
 from helper.helper import is_member
+from user_signup.authentication import basic_auth_required
 from .forms import DetailedFeedbackForm
-from .models import Court, Feedback, States, CourtType, RejectionReason
+from .models import Court, Feedback, States, CourtType, RejectionReason, InvalidStateError
+from .rest_api import (create_court, get_court_detail, get_court_ids, create_court_type, get_court_types, get_states,
+                       get_rest_api_info, CourtListLimitExceededError)
 
 
 class CourtListView(ListView):
@@ -121,3 +131,96 @@ class CreateDetailedFeedbackFormView(UserPassesTestMixin, LoginRequiredMixin, Cr
         court = Court.objects.get(pk=self.kwargs["court_id"])
         context["title"] = f"Detailiertes Feedback für {court.name}"
         return context
+
+
+class APIInfoView(TemplateView):
+    template_name = "court_database/api-information.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["apis"] = get_rest_api_info(self.request.build_absolute_uri("/").rstrip("/"))
+        return context
+
+
+@csrf_exempt
+@basic_auth_required
+@require_http_methods(["GET", "POST"])
+def rest_api_court(request):
+    if request.method == "GET":
+        try:
+            response_data = get_court_ids(request.GET)
+        except ValueError:
+            return HttpResponse(status=400, content="Invalid page or per_page parameter")
+        except EmptyPage:
+            return HttpResponse(status=404, content="The requested page is empty")
+        except Exception as e:
+            return HttpResponse(status=500, content=f"Internal server error: {str(e)}")
+    else:
+        try:
+            response_data = create_court(json.loads(request.body))
+        except KeyError as e:
+            return HttpResponse(status=400, content=f"Missing required field: {str(e)}")
+        except Court.DoesNotExist:
+            return HttpResponse(status=404, content="Parent court does not exist")
+        except CourtType.DoesNotExist:
+            return HttpResponse(status=404, content="Selected court type does not exist")
+        except IntegrityError as e:
+            return HttpResponse(status=400, content=f"Error creating court: {str(e)}")
+        except InvalidStateError as e:
+            return HttpResponse(status=400, content=f"Invalid state provided: {str(e)}")
+        except json.JSONDecodeError:
+            return HttpResponse(status=400, content="Invalid JSON format in request body")
+        except Exception as e:
+            return HttpResponse(status=500, content=f"Internal server error: {str(e)}")
+    return HttpResponse(json.dumps(response_data), content_type="application/json")
+
+
+@basic_auth_required
+@require_http_methods(["GET"])
+def rest_api_court_detail(request):
+    try:
+        response_data = get_court_detail(request.GET)
+    except KeyError as e:
+        return HttpResponse(status=400, content=f"Missing parameter: {str(e)}")
+    except Court.DoesNotExist:
+        return HttpResponse(status=404, content="One or more courts do not exist")
+    except CourtListLimitExceededError as e:
+        return HttpResponse(status=400, content=str(e))
+    except ValueError:
+        return HttpResponse(status=400, content="IDs must be integers")
+    except Exception as e:
+        return HttpResponse(status=500, content=f"Internal server error: {str(e)}")
+    return HttpResponse(json.dumps(response_data), content_type="application/json")
+
+
+@csrf_exempt
+@basic_auth_required
+@require_http_methods(["GET", "POST"])
+def rest_api_court_type(request):
+    if request.method == "GET":
+        try:
+            response_data = get_court_types()
+        except Exception as e:
+            return HttpResponse(status=500, content=f"Internal server error: {str(e)}")
+    else:
+        try:
+            response_data = create_court_type(json.loads(request.body))
+        except KeyError as e:
+            return HttpResponse(status=400, content=f"Missing required field: {str(e)}")
+        except IntegrityError as e:
+            return HttpResponse(status=400, content=f"Error creating court type: {str(e)}")
+        except json.JSONDecodeError:
+            return HttpResponse(status=400, content="Invalid JSON format in request body")
+        except Exception as e:
+            return HttpResponse(status=500, content=f"Internal server error: {str(e)}")
+    return HttpResponse(json.dumps(response_data), content_type="application/json")
+
+
+@basic_auth_required
+@require_http_methods(["GET"])
+def rest_api_state(request):
+    try:
+        response_data = get_states()
+    except Exception as e:
+        return HttpResponse(status=500, content=f"Internal server error: {str(e)}")
+    return HttpResponse(json.dumps(response_data), content_type="application/json")

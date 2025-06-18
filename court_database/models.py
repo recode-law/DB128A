@@ -6,7 +6,12 @@ from django.utils.translation import gettext_lazy as _
 import datetime
 import pytz
 
+
 UserModel = get_user_model()
+
+
+class InvalidStateError(ValueError):
+    pass
 
 
 class States(models.TextChoices):
@@ -95,7 +100,7 @@ class Address(models.Model):
 
 
 class Court(models.Model):
-    name = models.CharField(verbose_name="Name", max_length=200)
+    name = models.CharField(verbose_name="Name", max_length=200, unique=True)
     type = models.ForeignKey(verbose_name="Art", to=CourtType, on_delete=models.PROTECT)
     address = models.ForeignKey(verbose_name="Adresse", to=Address, on_delete=models.PROTECT, null=True, blank=True)
     parent = models.ForeignKey(verbose_name="Übergeordnet", to="self", on_delete=models.PROTECT, null=True, blank=True)
@@ -228,6 +233,19 @@ class Feedback(models.Model):
         local_time = self.created_at_localized()
         return local_time.strftime("%d.%m.%Y %H:%M:%S")
 
+    def to_dict(self) -> dict:
+        data = {
+            "provides_online_service": self.provides_online_service,
+            "online_service_quality": self.online_service_quality,
+            "rejection_reason": None,
+            "created_at": self.local_time_to_str()
+        }
+
+        if not self.provides_online_service:
+            data["rejection_reason"] = self.rejection_reason.name if self.rejection_reason else "Sonstiges..."
+
+        return data
+
     def __str__(self) -> str:
         return f"{self.court.name} | {self.provides_online_service} | {self.online_service_quality if self.provides_online_service else self.rejection_reason.name if self.rejection_reason is not None else self.other_rejection_reason} | {self.local_time_to_str()}"
 
@@ -267,6 +285,15 @@ class DetailedFeedback(models.Model):
 
     def conferencing_software_text(self) -> str:
         return ", ".join([conferencing_software.name for conferencing_software in self.conferencing_software.all()]) or "-"
+
+    def to_dict(self) -> dict:
+        return {
+            "online_service_possible": self.online_service_possible,
+            "camera_perspectives": self.camera_perspectives_text(),
+            "conferencing_software": self.conferencing_software_text(),
+            "feedback": self.feedback,
+            "created_at": self.local_time_to_str()
+        }
 
     def __str__(self) -> str:
         return f"{self.user} | {self.court.name} | {self.online_service_possible} | {self.feedback} | {self.local_time_to_str()}"

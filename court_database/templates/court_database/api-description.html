@@ -1,0 +1,38 @@
+<div class="card w-100">
+    <div class="card-body">
+        <h2 class="card-title h5">{{ api.title }}</h2>
+        <div class="mb-2 d-flex align-items-center">
+            <span class="fw-semibold me-2">HTTP-Methode:</span>
+            <span class="badge {% if api.method == "GET" %}bg-success{% else %}bg-primary{% endif %} me-2">{{ api.method }}</span>
+        </div>
+        <div class="mb-2 d-flex align-items-center">
+            <span class="fw-semibold me-2">URL:</span>
+            <span id="url-{{ api.id }}" class="font-monospace"><code>{{ api.url }}</code></span>
+            <button class="btn btn-outline-secondary btn-sm ms-2" type="button" onclick="copyToClipboard('url-{{ api.id }}')">
+                <i class="bi bi-clipboard"></i> Kopieren
+            </button>
+        </div>
+        <div class="mb-2">
+            <span class="fw-semibold me-2">Beschreibung:</span>
+            <span>{{ api.description }}</span>
+        </div>
+        <div class="mb-2" {% if not api.request_schema %}style="display:none"{% endif %}>
+            <span class="fw-semibold me-2">Daten-Schema:</span>
+            <div class="position-relative">
+                <pre id="json-{{ api.id }}-request" class="bg-body-secondary rounded p-2 mb-0"><code>{{ api.request_schema }}</code></pre>
+                <button class="btn btn-outline-secondary btn-sm position-absolute top-0 end-0 m-2" type="button" onclick="copyToClipboard('json-{{ api.id }}-request')">
+                    <i class="bi bi-clipboard"></i>
+                </button>
+            </div>
+        </div>
+        <div class="mb-2" {% if not api.response_schema %}style="display:none"{% endif %}>
+            <span class="fw-semibold me-2">Ergebnis:</span>
+            <div class="position-relative">
+                <pre id="json-{{ api.id }}-response" class="bg-body-secondary rounded p-2 mb-0"><code>{{ api.response_schema }}</code></pre>
+                <button class="btn btn-outline-secondary btn-sm position-absolute top-0 end-0 m-2" type="button" onclick="copyToClipboard('json-{{ api.id }}-response')">
+                    <i class="bi bi-clipboard"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

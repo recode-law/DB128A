@@ -10,7 +10,7 @@ from django.views.decorators.http import require_http_methods
 from django.http.response import HttpResponseRedirect
 from django.db import IntegrityError
 
-from helper.helper import is_member
+from helper.helper import is_member, group_required
 from user_signup.authentication import basic_auth_required
 from .forms import DetailedFeedbackForm
 from .models import Court, Feedback, States, CourtType, RejectionReason, InvalidStateError
@@ -144,6 +144,7 @@ class APIInfoView(TemplateView):
 
 @csrf_exempt
 @basic_auth_required
+@group_required("Verifiziert")
 @require_http_methods(["GET", "POST"])
 def rest_api_court(request):
     if request.method == "GET":
@@ -176,6 +177,7 @@ def rest_api_court(request):
 
 
 @basic_auth_required
+@group_required("Verifiziert")
 @require_http_methods(["GET"])
 def rest_api_court_detail(request):
     try:
@@ -195,6 +197,7 @@ def rest_api_court_detail(request):
 
 @csrf_exempt
 @basic_auth_required
+@group_required("Verifiziert")
 @require_http_methods(["GET", "POST"])
 def rest_api_court_type(request):
     if request.method == "GET":
@@ -217,6 +220,7 @@ def rest_api_court_type(request):
 
 
 @basic_auth_required
+@group_required("Verifiziert")
 @require_http_methods(["GET"])
 def rest_api_state(request):
     try:

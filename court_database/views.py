@@ -15,7 +15,9 @@ from user_signup.authentication import basic_auth_required
 from .forms import DetailedFeedbackForm
 from .models import Court, Feedback, States, CourtType, RejectionReason, InvalidStateError
 from .rest_api import (create_court, get_court_detail, get_court_ids, create_court_type, get_court_types, get_states,
-                       get_rest_api_info, CourtListLimitExceededError)
+                       get_rest_api_info, create_court_feedback, create_court_detailed_feedback,
+                       create_camera_perspective, create_conferencing_software, get_camera_perspectives,
+                       get_conferencing_software, get_rejection_reasons, CourtListLimitExceededError)
 
 
 class CourtListView(ListView):
@@ -158,7 +160,7 @@ def rest_api_court(request):
             return HttpResponse(status=500, content=f"Internal server error: {str(e)}")
     else:
         try:
-            response_data = create_court(json.loads(request.body))
+            response_data = create_court(json.loads(request.body), request.user)
         except KeyError as e:
             return HttpResponse(status=400, content=f"Missing required field: {str(e)}")
         except Court.DoesNotExist:
@@ -207,7 +209,7 @@ def rest_api_court_type(request):
             return HttpResponse(status=500, content=f"Internal server error: {str(e)}")
     else:
         try:
-            response_data = create_court_type(json.loads(request.body))
+            response_data = create_court_type(json.loads(request.body), request.user)
         except KeyError as e:
             return HttpResponse(status=400, content=f"Missing required field: {str(e)}")
         except IntegrityError as e:
@@ -227,4 +229,105 @@ def rest_api_state(request):
         response_data = get_states()
     except Exception as e:
         return HttpResponse(status=500, content=f"Internal server error: {str(e)}")
+    return HttpResponse(json.dumps(response_data), content_type="application/json")
+
+
+@csrf_exempt
+@basic_auth_required
+@group_required("Verifiziert")
+@require_http_methods(["POST"])
+def rest_api_court_feedback(request):
+    try:
+        create_court_feedback(json.loads(request.body), request.user)
+    except KeyError as e:
+        return HttpResponse(status=400, content=f"Missing required field: {str(e)}")
+    except IntegrityError as e:
+        return HttpResponse(status=400, content=f"Error creating feedback: {str(e)}")
+    except json.JSONDecodeError:
+        return HttpResponse(status=400, content="Invalid JSON format in request body")
+    except ValueError as e:
+        return HttpResponse(status=400, content=f"Invalid value provided: {str(e)}")
+    except RejectionReason.DoesNotExist:
+        return HttpResponse(status=400, content="Selected rejection reason does not exist")
+    except Exception as e:
+        return HttpResponse(status=500, content=f"Internal server error: {str(e)}")
+    return HttpResponse("ok", status=200, content_type="text/plain")
+
+
+@csrf_exempt
+@basic_auth_required
+@group_required("Verifiziert")
+@require_http_methods(["POST"])
+def rest_api_court_detailed_feedback(request):
+    try:
+        create_court_detailed_feedback(json.loads(request.body), request.user)
+    except KeyError as e:
+        return HttpResponse(status=400, content=f"Missing required field: {str(e)}")
+    except IntegrityError as e:
+        return HttpResponse(status=400, content=f"Error creating detailed feedback: {str(e)}")
+    except json.JSONDecodeError:
+        return HttpResponse(status=400, content="Invalid JSON format in request body")
+    except ValueError as e:
+        return HttpResponse(status=400, content=f"Invalid value provided: {str(e)}")
+    except Exception as e:
+        return HttpResponse(status=500, content=f"Internal server error: {str(e)}")
+    return HttpResponse("ok", status=200, content_type="text/plain")
+
+
+@basic_auth_required
+@group_required("Verifiziert")
+@require_http_methods(["GET"])
+def rest_api_rejection_reason(request):
+    try:
+        response_data = get_rejection_reasons()
+    except Exception as e:
+        return HttpResponse(status=500, content=f"Internal server error: {str(e)}")
+    return HttpResponse(json.dumps(response_data), content_type="application/json")
+
+
+@csrf_exempt
+@basic_auth_required
+@group_required("Verifiziert")
+@require_http_methods(["GET", "POST"])
+def rest_api_camera_perspective(request):
+    if request.method == "GET":
+        try:
+            response_data = get_camera_perspectives()
+        except Exception as e:
+            return HttpResponse(status=500, content=f"Internal server error: {str(e)}")
+    else:
+        try:
+            response_data = create_camera_perspective(json.loads(request.body), request.user)
+        except KeyError as e:
+            return HttpResponse(status=400, content=f"Missing required field: {str(e)}")
+        except IntegrityError as e:
+            return HttpResponse(status=400, content=f"Error creating camera perspective: {str(e)}")
+        except json.JSONDecodeError:
+            return HttpResponse(status=400, content="Invalid JSON format in request body")
+        except Exception as e:
+            return HttpResponse(status=500, content=f"Internal server error: {str(e)}")
+    return HttpResponse(json.dumps(response_data), content_type="application/json")
+
+
+@csrf_exempt
+@basic_auth_required
+@group_required("Verifiziert")
+@require_http_methods(["GET", "POST"])
+def rest_api_conferencing_software(request):
+    if request.method == "GET":
+        try:
+            response_data = get_conferencing_software()
+        except Exception as e:
+            return HttpResponse(status=500, content=f"Internal server error: {str(e)}")
+    else:
+        try:
+            response_data = create_conferencing_software(json.loads(request.body), request.user)
+        except KeyError as e:
+            return HttpResponse(status=400, content=f"Missing required field: {str(e)}")
+        except IntegrityError as e:
+            return HttpResponse(status=400, content=f"Error creating conferencing software: {str(e)}")
+        except json.JSONDecodeError:
+            return HttpResponse(status=400, content="Invalid JSON format in request body")
+        except Exception as e:
+            return HttpResponse(status=500, content=f"Internal server error: {str(e)}")
     return HttpResponse(json.dumps(response_data), content_type="application/json")

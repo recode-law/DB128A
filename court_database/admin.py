@@ -65,6 +65,7 @@ class FeedbackAdmin(admin.ModelAdmin):
         "rejection_reason",
         "other_rejection_reason",
         "creator_ip",
+        "api_user",
         "created_at",
         "disabled"
     ]
@@ -75,6 +76,7 @@ class FeedbackAdmin(admin.ModelAdmin):
         "online_service_quality",
         "rejection_reason",
         "creator_ip",
+        "api_user",
         "disabled"
     ]
 
@@ -83,7 +85,8 @@ class FeedbackAdmin(admin.ModelAdmin):
         "online_service_quality",
         "rejection_reason",
         "other_rejection_reason",
-        "creator_ip"
+        "creator_ip",
+        "api_user"
     ]
 
 

@@ -4,8 +4,12 @@ import json
 from django.core.paginator import Paginator
 from django.conf import settings
 from django.urls import reverse
+from django.contrib.auth import get_user_model
 
-from court_database.models import Court, CourtType, Address, States, InvalidStateError
+from court_database.models import Court, CourtType, Address, States, InvalidStateError, Feedback, DetailedFeedback, \
+    RejectionReason, CameraPerspective, ConferencingSoftware
+
+UserModel = get_user_model()
 
 
 @cache
@@ -140,8 +144,9 @@ def get_rest_api_info(base_url: str):
     ]
 
 
-def create_court(data: dict):
+def create_court(data: dict, api_user: UserModel):
     court = Court()
+    court.api_user = api_user
     court.name = data["name"]
     court.type = CourtType.objects.get(id=data["type"])
 
@@ -161,7 +166,8 @@ def create_court(data: dict):
             state=state,
             city=city,
             postal_code=postal_code,
-            street=street
+            street=street,
+            api_user=api_user
         )
 
     try:
@@ -230,8 +236,8 @@ def get_court_detail(data: dict):
     }
 
 
-def create_court_type(data: dict):
-    court_type = CourtType(name=data["name"])
+def create_court_type(data: dict, api_user: UserModel):
+    court_type = CourtType(name=data["name"], api_user=api_user)
     court_type.save()
     return {
         "id": court_type.id,
@@ -245,3 +251,99 @@ def get_court_types():
 
 def get_states():
     return [{"id": state[0], "name": str(state[1])} for state in States.choices]
+
+
+def create_court_feedback(data: dict, api_user: UserModel):
+    court = Court.objects.get(id=data["court_id"])
+    provides_online_service = data["provides_online_service"]
+    if not isinstance(provides_online_service, bool):
+        raise ValueError("provides_online_service must be a boolean value.")
+    feedback = Feedback(
+        court=court,
+        provides_online_service=provides_online_service,
+        api_user=api_user
+    )
+
+    if provides_online_service:
+        quality = data.get("online_service_quality", None)
+        if quality not in [None, 1, 2, 3, 4, 5]:
+            raise ValueError("Invalid online service quality. Must be 1-5 or null.")
+        feedback.online_service_quality = quality
+    else:
+        rejection_reason = data.get("rejection_reason", None)
+        other_rejection_reason = data.get("other_rejection_reason", None)
+        if rejection_reason is not None:
+            if other_rejection_reason is not None:
+                raise ValueError("Either rejection_reason or other_rejection_reason must be provided, but not both.")
+            feedback.rejection_reason = RejectionReason.objects.get(id=rejection_reason)
+        elif other_rejection_reason is not None:
+            feedback.other_rejection_reason = other_rejection_reason
+        else:
+            raise ValueError("Either rejection_reason or other_rejection_reason must be provided, but not both.")
+
+    feedback.save()
+
+
+def create_court_detailed_feedback(data: dict, api_user: UserModel):
+    court = Court.objects.get(id=data["court_id"])
+    online_service_possible = data["online_service_possible"]
+    if not isinstance(online_service_possible, bool):
+        raise ValueError("online_service_possible must be a boolean value.")
+    feedback = DetailedFeedback(
+        user=api_user,
+        court=court,
+        online_service_possible=online_service_possible,
+        feedback=data["feedback"],
+        from_api=True
+    )
+    feedback.save()
+    if online_service_possible:
+        try:
+            camera_ids = set(data["camera_perspectives"])
+            found_cameras = CameraPerspective.objects.filter(id__in=camera_ids)
+            found_camera_ids = set(found_cameras.values_list("id", flat=True))
+            missing_ids = camera_ids - found_camera_ids
+            if missing_ids:
+                raise ValueError(f"Invalid CameraPerspective IDs: {missing_ids}")
+            feedback.camera_perspectives.set(found_cameras)
+
+            software_ids = set(data["conferencing_software"])
+            found_software = ConferencingSoftware.objects.filter(id__in=software_ids)
+            found_software_ids = set(found_software.values_list("id", flat=True))
+            missing_software_ids = software_ids - found_software_ids
+            if missing_software_ids:
+                raise ValueError(f"Invalid ConferencingSoftware IDs: {missing_software_ids}")
+            feedback.conferencing_software.set(found_software)
+
+            feedback.save()
+        except Exception:
+            feedback.delete()
+            raise
+
+
+def create_camera_perspective(data: dict, api_user: UserModel):
+    camera = CameraPerspective(name=data["name"], api_user=api_user)
+    camera.save()
+    return {
+        "id": camera.id
+    }
+
+
+def create_conferencing_software(data: dict, api_user: UserModel):
+    software = ConferencingSoftware(name=data["name"], api_user=api_user)
+    software.save()
+    return {
+        "id": software.id
+    }
+
+
+def get_camera_perspectives():
+    return [{"id": camera.id, "name": camera.name} for camera in CameraPerspective.objects.all()]
+
+
+def get_conferencing_software():
+    return [{"id": software.id, "name": software.name} for software in ConferencingSoftware.objects.all()]
+
+
+def get_rejection_reasons():
+    return [{"id": reason.id, "name": reason.name} for reason in RejectionReason.objects.all()]

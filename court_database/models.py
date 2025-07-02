@@ -43,6 +43,8 @@ class QualityChoices(models.IntegerChoices):
 
 class CourtType(models.Model):
     name = models.CharField(verbose_name="Name", unique=True, max_length=100)
+    api_user = models.ForeignKey(verbose_name="API Benutzer", to=UserModel, on_delete=models.PROTECT, null=True,
+                                 blank=True, default=None)
 
     class Meta:
         verbose_name = "Gerichtsart"
@@ -53,7 +55,7 @@ class CourtType(models.Model):
 
 
 class RejectionReason(models.Model):
-    name = models.CharField(verbose_name="Name", max_length=100)
+    name = models.CharField(verbose_name="Name", unique=True, max_length=100)
 
     class Meta:
         verbose_name = "Ablehnungsgrund"
@@ -64,7 +66,9 @@ class RejectionReason(models.Model):
 
 
 class CameraPerspective(models.Model):
-    name = models.CharField(verbose_name="Name", max_length=100)
+    name = models.CharField(verbose_name="Name", unique=True, max_length=100)
+    api_user = models.ForeignKey(verbose_name="API Benutzer", to=UserModel, on_delete=models.PROTECT, null=True,
+                                 blank=True, default=None)
 
     class Meta:
         verbose_name = "Kameraperspektive"
@@ -75,7 +79,9 @@ class CameraPerspective(models.Model):
 
 
 class ConferencingSoftware(models.Model):
-    name = models.CharField(verbose_name="Name", max_length=100)
+    name = models.CharField(verbose_name="Name", unique=True, max_length=100)
+    api_user = models.ForeignKey(verbose_name="API Benutzer", to=UserModel, on_delete=models.PROTECT, null=True,
+                                 blank=True, default=None)
 
     class Meta:
         verbose_name = "Konferenz Software"
@@ -90,6 +96,8 @@ class Address(models.Model):
     city = models.CharField(verbose_name="Ort", max_length=100, blank=True)
     postal_code = models.CharField(verbose_name="Postleitzahl", max_length=5, blank=True)
     street = models.CharField(verbose_name="Straße", max_length=100, blank=True)
+    api_user = models.ForeignKey(verbose_name="API Benutzer", to=UserModel, on_delete=models.PROTECT, null=True,
+                                 blank=True, default=None)
 
     class Meta:
         verbose_name = "Adresse"
@@ -116,6 +124,8 @@ class Court(models.Model):
                                                            default=0)
     online_service_possible_attr = models.BooleanField(verbose_name="Online Service möglich (Bool Cache)",
                                                        default=False)
+    api_user = models.ForeignKey(verbose_name="API Benutzer", to=UserModel, on_delete=models.PROTECT, null=True,
+                                 blank=True, default=None)
 
     class Meta:
         verbose_name = "Gericht"
@@ -217,9 +227,11 @@ class Feedback(models.Model):
     online_service_quality = models.IntegerField(verbose_name="Online Service Qualität", choices=QualityChoices.choices, null=True, blank=True)
     rejection_reason = models.ForeignKey(verbose_name="Ablehnungsgrund", to=RejectionReason, on_delete=models.PROTECT, null=True, blank=True)
     other_rejection_reason = models.TextField(verbose_name="Anderer Ablehnungsgrund", max_length=40, null=True, blank=True)
-    creator_ip = models.GenericIPAddressField(verbose_name="IP Adresse")
+    creator_ip = models.GenericIPAddressField(verbose_name="IP Adresse", null=True, blank=True)
     created_at = models.DateTimeField(verbose_name="Erstellungszeitpunkt", auto_now_add=True)
     disabled = models.BooleanField(verbose_name="Ausgeblendet", default=False)
+    api_user = models.ForeignKey(verbose_name="API Benutzer", to=UserModel, on_delete=models.PROTECT, null=True,
+                                 blank=True, default=None)
 
     class Meta:
         verbose_name = "Feedback"
@@ -259,6 +271,7 @@ class DetailedFeedback(models.Model):
     feedback = models.TextField(verbose_name="Feedback", blank=True)
     created_at = models.DateTimeField(verbose_name="Erstellungszeitpunkt", auto_now_add=True)
     disabled = models.BooleanField(verbose_name="Ausgeblendet", default=False)
+    from_api = models.BooleanField(verbose_name="Von API erstellt", default=False)
 
     class Meta:
         verbose_name = "Detailliertes Feedback"
@@ -289,8 +302,8 @@ class DetailedFeedback(models.Model):
     def to_dict(self) -> dict:
         return {
             "online_service_possible": self.online_service_possible,
-            "camera_perspectives": self.camera_perspectives_text(),
-            "conferencing_software": self.conferencing_software_text(),
+            "camera_perspectives": [camera_perspective.id for camera_perspective in self.camera_perspectives.all()],
+            "conferencing_software": [conferencing_software.id for conferencing_software in self.conferencing_software.all()],
             "feedback": self.feedback,
             "created_at": self.local_time_to_str()
         }

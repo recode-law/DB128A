@@ -12,65 +12,69 @@ from court_database.models import Court, CourtType, Address, States, InvalidStat
 UserModel = get_user_model()
 
 
+def dump_and_clear_quotations(data: dict | list) -> str:
+    return json.dumps(data, indent=2, ensure_ascii=False).replace('"\\"', "").replace('\\""', "")
+
+
 @cache
-def get_rest_api_info(base_url: str):
+def get_rest_api_info(base_url: str) -> list:
     return [
         {
             "id": "create-court",
             "title": "Gericht erstellen",
             "method": "POST",
             "url": f"{base_url}{reverse('court-database-restapi-court')}",
-            "description": "Erstellt ein neues Gericht in der Datenbank.",
-            "request_schema": json.dumps({
+            "description": "Erstellt ein neues Gericht.",
+            "request_schema": dump_and_clear_quotations({
                 "name": "<Name des Gerichts>",
-                "type": "<ID der Gerichtsart>",
-                "parent": "<ID des übergeordneten Gerichts>",
+                "type": '"<ID der Gerichtsart>"',
+                "parent": '"<ID des übergeordneten Gerichts>"',
                 "address": {
                     "state": "<Bundesland>",
                     "city": "<Stadt>",
                     "postal_code": "<Postleitzahl>",
                     "street": "<Straße und Hausnummer>"
                 }
-            }, indent=2, ensure_ascii=False),
-            "response_schema": json.dumps({
-                "id": "<ID des neuen Gerichts>",
-            }, indent=2, ensure_ascii=False),
+            }),
+            "response_schema": dump_and_clear_quotations({
+                "id": '"<ID des neuen Gerichts>"',
+            }),
         },
         {
             "id": "get-court-ids",
             "title": "Gericht IDs abfragen",
             "method": "GET",
             "url": f"{base_url}{reverse('court-database-restapi-court')}",
-            "description": "Gibt eine paginierte Liste von Gerichts-IDs und Namen zurück.",
+            "description": "Gibt eine paginierte Liste von Gericht-IDs und Namen zurück.",
             "request_schema": None,
-            "response_schema": json.dumps({
+            "response_schema": dump_and_clear_quotations({
                 "pagination": {
-                    "page_count": "<Anzahl der Seiten>",
-                    "next": "<Nächste Seite (falls vorhanden)>",
-                    "previous": "<Vorherige Seite (falls vorhanden)>"
+                    "page_count": '"<Anzahl der Seiten>"',
+                    "next": '"<Nächste Seite (falls vorhanden)>"',
+                    "previous": '"<Vorherige Seite (falls vorhanden)>"'
                 },
                 "courts": [
                     {
-                        "id": "<ID des Gerichts>",
+                        "id": '"<ID des Gerichts>"',
                         "name": "<Name des Gerichts>"
                     }
                 ]
-            }, indent=2, ensure_ascii=False),
+            }),
         },
         {
             "id": "get-court-info",
             "title": "Gerichtsinformationen abfragen",
             "method": "GET",
-            "url": f"{base_url}{reverse('court-database-restapi-court-detail')}?ids=<comma-separated-ids>",
+            "url": f"{base_url}{reverse('court-database-restapi-court-detail')}?ids=<Kommagetrennte Liste von Gericht-IDs>",
             "description": f"Gibt detaillierte Informationen zu den spezifizierten Gerichten zurück. Maximal {settings.COURT_LIST_LIMIT} Gerichte können abgefragt werden.",
             "request_schema": None,
-            "response_schema": json.dumps({
+            "response_schema": dump_and_clear_quotations({
                 "courts": [
                     {
-                        "id": "<ID des Gerichts>",
+                        "id": '"<ID des Gerichts>"',
                         "name": "<Name des Gerichts>",
-                        "type": "<ID der Gerichtart>",
-                        "parent": "<ID des übergeordneten Gerichts>",
+                        "type": '"<ID der Gerichtart>"',
+                        "parent": '"<ID des übergeordneten Gerichts>"',
                         "address": {
                             "state": "<Bundesland>",
                             "city": "<Stadt>",
@@ -82,7 +86,7 @@ def get_rest_api_info(base_url: str):
                         "feedbacks": [
                             {
                                 "provides_online_service": "<Ob Videoverhandlungen angeboten werden>",
-                                "online_service_quality": "<Qualität der Videoverhandlungen [1-5]>",
+                                "online_service_quality": '"<Qualität der Videoverhandlungen [1-5]>"',
                                 "rejection_reason": "<Grund für Ablehnung der Videoverhandlung>",
                                 "created_at": "<Datum der Erstellung>"
                             }
@@ -90,28 +94,28 @@ def get_rest_api_info(base_url: str):
                         "detailed_feedbacks": [
                             {
                                 "online_service_possible": "<Ob Videoverhandlungen möglich sind>",
-                                "camera_perspectives": "<Kommagetrennte Liste der Kamera-Perspektiven>",
-                                "conferencing_software": "<Kommagetrennte Liste der Konferenzsoftware>",
+                                "camera_perspectives": '"<Kommagetrennte Liste der Kamera-Perspektiven>"',
+                                "conferencing_software": '"<Kommagetrennte Liste der Konferenzsoftware>"',
                                 "feedback": "<Freitext-Feedback>",
                                 "created_at": "<Datum der Erstellung>"
                             }
                         ]
                     }
                 ]
-            }, indent=2, ensure_ascii=False),
+            }),
         },
         {
             "id": "create-court-type",
             "title": "Gerichtsart erstellen",
             "method": "POST",
             "url": f"{base_url}{reverse('court-database-restapi-court-type')}",
-            "description": "Erstellt eine neue Gerichtsart in der Datenbank.",
-            "request_schema": json.dumps({
+            "description": "Erstellt eine neue Gerichtsart.",
+            "request_schema": dump_and_clear_quotations({
                 "name": "<Name der Gerichtsart>"
-            }, indent=2, ensure_ascii=False),
-            "response_schema": json.dumps({
-                "id": "<ID der neuen Gerichtsart>"
-            }, indent=2, ensure_ascii=False),
+            }),
+            "response_schema": dump_and_clear_quotations({
+                "id": '"<ID der neuen Gerichtsart>"'
+            }),
         },
         {
             "id": "get-court-types",
@@ -120,12 +124,12 @@ def get_rest_api_info(base_url: str):
             "url": f"{base_url}{reverse('court-database-restapi-court-type')}",
             "description": "Gibt eine Liste aller Gerichtsarten zurück.",
             "request_schema": None,
-            "response_schema": json.dumps([
+            "response_schema": dump_and_clear_quotations([
                 {
-                    "id": "<ID der Gerichtsart>",
+                    "id": '"<ID der Gerichtsart>"',
                     "name": "<Name der Gerichtsart>"
                 }
-            ], indent=2, ensure_ascii=False),
+            ]),
         },
         {
             "id": "get-states",
@@ -134,13 +138,111 @@ def get_rest_api_info(base_url: str):
             "url": f"{base_url}{reverse('court-database-restapi-state')}",
             "description": "Gibt eine Liste aller Bundesländer zurück.",
             "request_schema": None,
-            "response_schema": json.dumps([
+            "response_schema": dump_and_clear_quotations([
                 {
-                    "id": "<ID des Bundeslandes>",
+                    "id": '"<ID des Bundeslandes>"',
                     "name": "<Name des Bundeslandes>"
                 }
-            ], indent=2, ensure_ascii=False),
+            ]),
         },
+        {
+            "id": "create-feedback",
+            "title": "Feedback erstellen",
+            "method": "POST",
+            "url": f"{base_url}{reverse('court-database-restapi-feedback')}",
+            "description": "Erstellt ein Feedback zu einem Gericht.",
+            "request_schema": dump_and_clear_quotations({
+                "court_id": '"<ID des Gerichts>"',
+                "provides_online_service": '"<Ob Videoverhandlungen angeboten werden>"',
+                "online_service_quality": '"<1-5 oder null, nur wenn provides_online_service true ist>"',
+                "rejection_reason": '"<ID des Ablehnungsgrundes, nur wenn provides_online_service false ist und kein other_rejection_reason angegeben ist>"',
+                "other_rejection_reason": "<Freitext, nur wenn provides_online_service false ist und kein rejection_reason angegeben ist>'"
+            }),
+            "response_schema": None,
+        },
+        {
+            "id": "create-detailed-feedback",
+            "title": "Detailliertes Feedback erstellen",
+            "method": "POST",
+            "url": f"{base_url}{reverse('court-database-restapi-detailed-feedback')}",
+            "description": "Erstellt ein detailliertes Feedback zu einem Gericht.",
+            "request_schema": dump_and_clear_quotations({
+                "court_id": '"<ID des Gerichts>"',
+                "online_service_possible": '"<Ob Videoverhandlungen möglich sind>"',
+                "camera_perspectives": '"<Kommagetrennte Liste der Kamera-Perspektiven>"',
+                "conferencing_software": '"<Kommagetrennte Liste der Konferenzsoftware>"',
+                "feedback": "<Freitext, optional>"
+            }),
+            "response_schema": None,
+        },
+        {
+            "id": "get-rejection-reasons",
+            "title": "Ablehnungsgründe abfragen",
+            "method": "GET",
+            "url": f"{base_url}{reverse('court-database-restapi-rejection-reason')}",
+            "description": "Gibt eine Liste aller Ablehnungsgründe zurück.",
+            "request_schema": None,
+            "response_schema": dump_and_clear_quotations([
+                {
+                    "id": '"<ID des Ablehnungsgrundes>"',
+                    "name": "<Name des Ablehnungsgrundes>"
+                }
+            ]),
+        },
+        {
+            "id": "get-camera-perspectives",
+            "title": "Kamera-Perspektiven abfragen",
+            "method": "GET",
+            "url": f"{base_url}{reverse('court-database-restapi-camera-perspective')}",
+            "description": "Gibt eine Liste aller Kamera-Perspektiven zurück.",
+            "request_schema": None,
+            "response_schema": dump_and_clear_quotations([
+                {
+                    "id": '"<ID der Kamera-Perspektive>"',
+                    "name": "<Name der Kamera-Perspektive>"
+                }
+            ]),
+        },
+        {
+            "id": "create-camera-perspective",
+            "title": "Kamera-Perspektive erstellen",
+            "method": "POST",
+            "url": f"{base_url}{reverse('court-database-restapi-camera-perspective')}",
+            "description": "Erstellt eine neue Kamera-Perspektive.",
+            "request_schema": dump_and_clear_quotations({
+                "name": "<Name der Kamera-Perspektive>"
+            }),
+            "response_schema": dump_and_clear_quotations({
+                "id": '"<ID der neuen Kamera-Perspektive>"'
+            }),
+        },
+        {
+            "id": "get-conferencing-software",
+            "title": "Konferenzsoftware abfragen",
+            "method": "GET",
+            "url": f"{base_url}{reverse('court-database-restapi-conferencing-software')}",
+            "description": "Gibt eine Liste aller Konferenzsoftware zurück.",
+            "request_schema": None,
+            "response_schema": dump_and_clear_quotations([
+                {
+                    "id": '"<ID der Konferenzsoftware>"',
+                    "name": "<Name der Konferenzsoftware>"
+                }
+            ]),
+        },
+        {
+            "id": "create-conferencing-software",
+            "title": "Konferenzsoftware erstellen",
+            "method": "POST",
+            "url": f"{base_url}{reverse('court-database-restapi-conferencing-software')}",
+            "description": "Erstellt eine neue Konferenzsoftware.",
+            "request_schema": dump_and_clear_quotations({
+                "name": "<Name der Konferenzsoftware>"
+            }),
+            "response_schema": dump_and_clear_quotations({
+                "id": '"<ID der neuen Konferenzsoftware>"'
+            }),
+        }
     ]
 
 

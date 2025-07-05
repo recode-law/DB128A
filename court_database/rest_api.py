@@ -20,27 +20,6 @@ def dump_and_clear_quotations(data: dict | list) -> str:
 def get_rest_api_info(base_url: str) -> list:
     return [
         {
-            "id": "create-court",
-            "title": "Gericht erstellen",
-            "method": "POST",
-            "url": f"{base_url}{reverse('court-database-restapi-court')}",
-            "description": "Erstellt ein neues Gericht.",
-            "request_schema": dump_and_clear_quotations({
-                "name": "<Name des Gerichts>",
-                "type": '"<ID der Gerichtsart>"',
-                "parent": '"<ID des übergeordneten Gerichts>"',
-                "address": {
-                    "state": "<Bundesland>",
-                    "city": "<Stadt>",
-                    "postal_code": "<Postleitzahl>",
-                    "street": "<Straße und Hausnummer>"
-                }
-            }),
-            "response_schema": dump_and_clear_quotations({
-                "id": '"<ID des neuen Gerichts>"',
-            }),
-        },
-        {
             "id": "get-court-ids",
             "title": "Gericht IDs abfragen",
             "method": "GET",
@@ -105,16 +84,24 @@ def get_rest_api_info(base_url: str) -> list:
             }),
         },
         {
-            "id": "create-court-type",
-            "title": "Gerichtsart erstellen",
+            "id": "create-court",
+            "title": "Gericht erstellen",
             "method": "POST",
-            "url": f"{base_url}{reverse('court-database-restapi-court-type')}",
-            "description": "Erstellt eine neue Gerichtsart.",
+            "url": f"{base_url}{reverse('court-database-restapi-court')}",
+            "description": "Erstellt ein neues Gericht.",
             "request_schema": dump_and_clear_quotations({
-                "name": "<Name der Gerichtsart>"
+                "name": "<Name des Gerichts>",
+                "type": '"<ID der Gerichtsart>"',
+                "parent": '"<ID des übergeordneten Gerichts>"',
+                "address": {
+                    "state": "<Bundesland>",
+                    "city": "<Stadt>",
+                    "postal_code": "<Postleitzahl>",
+                    "street": "<Straße und Hausnummer>"
+                }
             }),
             "response_schema": dump_and_clear_quotations({
-                "id": '"<ID der neuen Gerichtsart>"'
+                "id": '"<ID des neuen Gerichts>"',
             }),
         },
         {
@@ -130,6 +117,19 @@ def get_rest_api_info(base_url: str) -> list:
                     "name": "<Name der Gerichtsart>"
                 }
             ]),
+        },
+        {
+            "id": "create-court-type",
+            "title": "Gerichtsart erstellen",
+            "method": "POST",
+            "url": f"{base_url}{reverse('court-database-restapi-court-type')}",
+            "description": "Erstellt eine neue Gerichtsart.",
+            "request_schema": dump_and_clear_quotations({
+                "name": "<Name der Gerichtsart>"
+            }),
+            "response_schema": dump_and_clear_quotations({
+                "id": '"<ID der neuen Gerichtsart>"'
+            }),
         },
         {
             "id": "get-states",

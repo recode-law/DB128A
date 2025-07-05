@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 import base64
 
-from .models import Court, CourtType
+from .models import Court, CourtType, Feedback
 
 User = get_user_model()
 
@@ -32,7 +32,7 @@ class CourtListTests(CourtDatabaseTestCase):
                 type=CourtType.objects.first()
             )
 
-    def test_unauthenticated(self):
+    def test_list_courts_unauthenticated(self):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 401)
         self.assertEqual(response.content.decode('utf-8'), "Unauthorized")
@@ -83,3 +83,32 @@ class CourtListTests(CourtDatabaseTestCase):
         response = self.client.get(self.url, {'per_page': 'invalid'}, HTTP_AUTHORIZATION=self.auth_header)
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.content.decode('utf-8'), "Invalid page or per_page parameter")
+
+
+class CourtDetailsTests(CourtDatabaseTestCase):
+    def setUp(self):
+        super().setUp()
+        self.url = reverse('court-database-restapi-court-detail')
+        for i in range(100):
+            Court.objects.create(
+                name=f"Test Court {i}",
+                type=CourtType.objects.first()
+            )
+
+    def test_court_details_unauthenticated(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.content.decode('utf-8'), "Unauthorized")
+
+    def test_court_details(self):
+        response = self.client.get(self.url, {'ids': '1'}, HTTP_AUTHORIZATION=self.auth_header)
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue('courts' in data)
+        self.assertEqual(len(data['courts']), 1)
+        court = data['courts'][0]
+        self.assertEqual(court['id'], 1)
+        self.assertEqual(court['name'], "Test Court 0")
+        self.assertEqual(court['type'], CourtType.objects.first().name)
+        self.assertEqual(court['parent'], None)
+        self.assertEqual(court['parent'], None)

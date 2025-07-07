@@ -92,7 +92,7 @@ def get_rest_api_info(base_url: str) -> list:
             "request_schema": dump_and_clear_quotations({
                 "name": "<Name des Gerichts>",
                 "type": '"<ID der Gerichtsart>"',
-                "parent": '"<ID des übergeordneten Gerichts>"',
+                "parent": '"<ID des übergeordneten Gerichts, optional>"',
                 "address": {
                     "state": "<Bundesland>",
                     "city": "<Stadt>",

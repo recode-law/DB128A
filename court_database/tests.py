@@ -22,6 +22,12 @@ class CourtDatabaseTestCase(TestCase):
         encoded_credentials = base64.b64encode(credentials.encode('utf-8')).decode('utf-8')
         self.auth_header = f'Basic {encoded_credentials}'
 
+    def get_auth(self, path, data=None):
+        return self.client.get(path, data, HTTP_AUTHORIZATION=self.auth_header)
+
+    def post_auth(self, path, data=None):
+        return self.client.post(path, data, content_type="application/json", HTTP_AUTHORIZATION=self.auth_header)
+
 
 class CourtListTests(CourtDatabaseTestCase):
     def setUp(self):
@@ -39,7 +45,7 @@ class CourtListTests(CourtDatabaseTestCase):
         self.assertEqual(response.content.decode('utf-8'), "Unauthorized")
 
     def test_list_courts(self):
-        response = self.client.get(self.url, HTTP_AUTHORIZATION=self.auth_header)
+        response = self.get_auth(self.url)
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertTrue('pagination' in data)
@@ -52,7 +58,7 @@ class CourtListTests(CourtDatabaseTestCase):
         self.assertFalse('previous' in data['pagination'])
 
     def test_list_court_custom_page(self):
-        response = self.client.get(self.url, {'page': 3}, HTTP_AUTHORIZATION=self.auth_header)
+        response = self.get_auth(self.url, {'page': 3})
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertNotContains(response, "Test Court 19")
@@ -62,17 +68,17 @@ class CourtListTests(CourtDatabaseTestCase):
         self.assertEqual(data['pagination']['next'], 4)
 
     def test_list_court_custom_page_invalid(self):
-        response = self.client.get(self.url, {'page': 1000}, HTTP_AUTHORIZATION=self.auth_header)
+        response = self.get_auth(self.url, {'page': 1000})
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.content.decode('utf-8'), "The requested page is empty")
 
     def test_list_court_custom_page_wrong_type(self):
-        response = self.client.get(self.url, {'page': 'invalid'}, HTTP_AUTHORIZATION=self.auth_header)
+        response = self.get_auth(self.url, {'page': 'invalid'})
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.content.decode('utf-8'), "Invalid page or per_page parameter")
 
     def test_list_court_custom_per_page(self):
-        response = self.client.get(self.url, {'per_page': 5}, HTTP_AUTHORIZATION=self.auth_header)
+        response = self.get_auth(self.url, {'per_page': 5})
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertEqual(len(data['courts']), 5)
@@ -81,7 +87,7 @@ class CourtListTests(CourtDatabaseTestCase):
         self.assertEqual(data['pagination']['page_count'], 20)
 
     def test_list_court_custom_per_page_wrong_type(self):
-        response = self.client.get(self.url, {'per_page': 'invalid'}, HTTP_AUTHORIZATION=self.auth_header)
+        response = self.get_auth(self.url, {'per_page': 'invalid'})
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.content.decode('utf-8'), "Invalid page or per_page parameter")
 
@@ -124,7 +130,7 @@ class CourtDetailsTests(CourtDatabaseTestCase):
         self.assertEqual(response.content.decode('utf-8'), "Unauthorized")
 
     def test_court_details(self):
-        response = self.client.get(self.url, {'ids': '1'}, HTTP_AUTHORIZATION=self.auth_header)
+        response = self.get_auth(self.url, {'ids': '1'})
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertTrue('courts' in data)
@@ -148,7 +154,7 @@ class CourtDetailsTests(CourtDatabaseTestCase):
         self.assertEqual(detailed_feedbacks[0]['conferencing_software'][0], ConferencingSoftware.objects.first().id)
 
     def test_court_details_multiple_ids(self):
-        response = self.client.get(self.url, {'ids': '1,2,3'}, HTTP_AUTHORIZATION=self.auth_header)
+        response = self.get_auth(self.url, {'ids': '1,2,3'})
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertTrue('courts' in data)
@@ -159,22 +165,61 @@ class CourtDetailsTests(CourtDatabaseTestCase):
         self.assertIn(3, court_ids)
 
     def test_court_details_unused_id(self):
-        response = self.client.get(self.url, {'ids': '999'}, HTTP_AUTHORIZATION=self.auth_header)
+        response = self.get_auth(self.url, {'ids': '999'})
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertEqual(len(data['courts']), 0)
 
     def test_court_details_invalid_id(self):
-        response = self.client.get(self.url, {'ids': 'invalid'}, HTTP_AUTHORIZATION=self.auth_header)
+        response = self.get_auth(self.url, {'ids': 'invalid'})
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.content.decode('utf-8'), "IDs must be integers")
 
     def test_court_details_empty_ids(self):
-        response = self.client.get(self.url, HTTP_AUTHORIZATION=self.auth_header)
+        response = self.get_auth(self.url)
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.content.decode('utf-8'), "Missing parameter: 'ids'")
 
     def test_court_details_to_many_ids(self):
-        response = self.client.get(self.url, {'ids': ','.join([str(i) for i in range(30)])}, HTTP_AUTHORIZATION=self.auth_header)
+        response = self.get_auth(self.url, {'ids': ','.join([str(i) for i in range(30)])})
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.content.decode('utf-8'), "Too many court IDs provided. Maximum is 20.")
+
+
+class CourtCreateTests(CourtDatabaseTestCase):
+    def setUp(self):
+        super().setUp()
+        self.url = reverse('court-database-restapi-court')
+
+    def test_create_court_unauthenticated(self):
+        response = self.client.post(self.url)
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.content.decode('utf-8'), "Unauthorized")
+
+    def test_create_court(self):
+        request_data = {
+            'name': 'New Test Court',
+            'type': CourtType.objects.first().id
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 201)
+        data = response.json()
+        court = Court.objects.get(id=data['id'])
+        self.assertEqual(court.name, 'New Test Court')
+        self.assertEqual(court.type, CourtType.objects.first())
+
+    def test_create_court_missing_name(self):
+        request_data = {
+            'type': CourtType.objects.first().id
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode('utf-8'), "Missing required field: 'name'")
+
+    def test_create_court_missing_type(self):
+        request_data = {
+            'name': 'New Test Court'
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode('utf-8'), "Missing required field: 'type'")

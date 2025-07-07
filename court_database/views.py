@@ -175,7 +175,7 @@ def rest_api_court(request):
             return HttpResponse(status=400, content="Invalid JSON format in request body")
         except Exception as e:
             return HttpResponse(status=500, content=f"Internal server error: {str(e)}")
-    return HttpResponse(json.dumps(response_data), content_type="application/json")
+    return HttpResponse(json.dumps(response_data), status=200 if request.method == "GET" else 201, content_type="application/json")
 
 
 @basic_auth_required
@@ -218,7 +218,7 @@ def rest_api_court_type(request):
             return HttpResponse(status=400, content="Invalid JSON format in request body")
         except Exception as e:
             return HttpResponse(status=500, content=f"Internal server error: {str(e)}")
-    return HttpResponse(json.dumps(response_data), content_type="application/json")
+    return HttpResponse(json.dumps(response_data), status=200 if request.method == "GET" else 201, content_type="application/json")
 
 
 @basic_auth_required
@@ -251,7 +251,7 @@ def rest_api_court_feedback(request):
         return HttpResponse(status=400, content="Selected rejection reason does not exist")
     except Exception as e:
         return HttpResponse(status=500, content=f"Internal server error: {str(e)}")
-    return HttpResponse("ok", status=200, content_type="text/plain")
+    return HttpResponse(status=201, content_type="text/plain")
 
 
 @csrf_exempt
@@ -271,7 +271,7 @@ def rest_api_court_detailed_feedback(request):
         return HttpResponse(status=400, content=f"Invalid value provided: {str(e)}")
     except Exception as e:
         return HttpResponse(status=500, content=f"Internal server error: {str(e)}")
-    return HttpResponse("ok", status=200, content_type="text/plain")
+    return HttpResponse(status=201, content_type="text/plain")
 
 
 @basic_auth_required
@@ -306,7 +306,7 @@ def rest_api_camera_perspective(request):
             return HttpResponse(status=400, content="Invalid JSON format in request body")
         except Exception as e:
             return HttpResponse(status=500, content=f"Internal server error: {str(e)}")
-    return HttpResponse(json.dumps(response_data), content_type="application/json")
+    return HttpResponse(json.dumps(response_data), status=200 if request.method == "GET" else 201, content_type="application/json")
 
 
 @csrf_exempt
@@ -330,4 +330,4 @@ def rest_api_conferencing_software(request):
             return HttpResponse(status=400, content="Invalid JSON format in request body")
         except Exception as e:
             return HttpResponse(status=500, content=f"Internal server error: {str(e)}")
-    return HttpResponse(json.dumps(response_data), content_type="application/json")
+    return HttpResponse(json.dumps(response_data), status=200 if request.method == "GET" else 201, content_type="application/json")

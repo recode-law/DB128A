@@ -254,7 +254,7 @@ class Feedback(models.Model):
         }
 
         if not self.provides_online_service:
-            data["rejection_reason"] = self.rejection_reason.name if self.rejection_reason else "Sonstiges..."
+            data["rejection_reason"] = self.rejection_reason.id if self.rejection_reason else -1
 
         return data
 

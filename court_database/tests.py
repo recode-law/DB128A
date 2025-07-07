@@ -4,7 +4,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 import base64
 
-from .models import Court, CourtType, Feedback
+from .models import Court, CourtType, Feedback, RejectionReason, DetailedFeedback, CameraPerspective, \
+    ConferencingSoftware
 
 User = get_user_model()
 
@@ -94,6 +95,28 @@ class CourtDetailsTests(CourtDatabaseTestCase):
                 name=f"Test Court {i}",
                 type=CourtType.objects.first()
             )
+        court = Court.objects.first()
+        rejection_reason = RejectionReason.objects.create(name="Test Rejection Reason")
+        Feedback.objects.create(
+            court=court,
+            provides_online_service=False,
+            rejection_reason=rejection_reason
+        )
+        Feedback.objects.create(
+            court=court,
+            provides_online_service=True,
+            online_service_quality=3
+        )
+        detailed_feedback = DetailedFeedback.objects.create(
+            court=court,
+            user=self.user,
+            online_service_possible=True,
+            feedback="This is a test feedback."
+        )
+        camera_perspective = CameraPerspective.objects.create(name="Test Camera Perspective")
+        conferencing_software = ConferencingSoftware.objects.create(name="Test Conferencing Software")
+        detailed_feedback.camera_perspectives.set([camera_perspective])
+        detailed_feedback.conferencing_software.set([conferencing_software])
 
     def test_court_details_unauthenticated(self):
         response = self.client.get(self.url)
@@ -112,3 +135,46 @@ class CourtDetailsTests(CourtDatabaseTestCase):
         self.assertEqual(court['type'], CourtType.objects.first().name)
         self.assertEqual(court['parent'], None)
         self.assertEqual(court['parent'], None)
+        feedbacks = court['feedbacks']
+        self.assertEqual(len(feedbacks), 2)
+        self.assertFalse(feedbacks[0]['provides_online_service'])
+        self.assertEqual(feedbacks[0]['rejection_reason'], RejectionReason.objects.first().id)
+        self.assertTrue(feedbacks[1]['provides_online_service'])
+        self.assertEqual(feedbacks[1]['online_service_quality'], 3)
+        detailed_feedbacks = court['detailed_feedbacks']
+        self.assertEqual(len(detailed_feedbacks), 1)
+        self.assertTrue(detailed_feedbacks[0]['online_service_possible'])
+        self.assertEqual(detailed_feedbacks[0]['camera_perspectives'][0], CameraPerspective.objects.first().id)
+        self.assertEqual(detailed_feedbacks[0]['conferencing_software'][0], ConferencingSoftware.objects.first().id)
+
+    def test_court_details_multiple_ids(self):
+        response = self.client.get(self.url, {'ids': '1,2,3'}, HTTP_AUTHORIZATION=self.auth_header)
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue('courts' in data)
+        self.assertEqual(len(data['courts']), 3)
+        court_ids = [court['id'] for court in data['courts']]
+        self.assertIn(1, court_ids)
+        self.assertIn(2, court_ids)
+        self.assertIn(3, court_ids)
+
+    def test_court_details_unused_id(self):
+        response = self.client.get(self.url, {'ids': '999'}, HTTP_AUTHORIZATION=self.auth_header)
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(len(data['courts']), 0)
+
+    def test_court_details_invalid_id(self):
+        response = self.client.get(self.url, {'ids': 'invalid'}, HTTP_AUTHORIZATION=self.auth_header)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode('utf-8'), "IDs must be integers")
+
+    def test_court_details_empty_ids(self):
+        response = self.client.get(self.url, HTTP_AUTHORIZATION=self.auth_header)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode('utf-8'), "Missing parameter: 'ids'")
+
+    def test_court_details_to_many_ids(self):
+        response = self.client.get(self.url, {'ids': ','.join([str(i) for i in range(30)])}, HTTP_AUTHORIZATION=self.auth_header)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode('utf-8'), "Too many court IDs provided. Maximum is 20.")

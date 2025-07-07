@@ -65,8 +65,8 @@ def get_rest_api_info(base_url: str) -> list:
                         "feedbacks": [
                             {
                                 "provides_online_service": "<Ob Videoverhandlungen angeboten werden>",
-                                "online_service_quality": '"<Qualität der Videoverhandlungen [1-5]>"',
-                                "rejection_reason": "<Grund für Ablehnung der Videoverhandlung>",
+                                "online_service_quality": '"<Qualität der Videoverhandlungen [1-5], null wenn nicht angegeben>"',
+                                "rejection_reason": '"<ID des Ablehnungsgrundes, -1 wenn ein anderer Grund angegeben wurde>"',
                                 "created_at": "<Datum der Erstellung>"
                             }
                         ],

@@ -55,7 +55,7 @@ def get_rest_api_info(base_url: str) -> list:
                         "type": '"<ID der Gerichtart>"',
                         "parent": '"<ID des übergeordneten Gerichts>"',
                         "address": {
-                            "state": "<Bundesland>",
+                            "state": "<ID des Bundeslandes>",
                             "city": "<Stadt>",
                             "postal_code": "<Postleitzahl>",
                             "street": "<Straße und Hausnummer>"
@@ -140,7 +140,7 @@ def get_rest_api_info(base_url: str) -> list:
             "request_schema": None,
             "response_schema": dump_and_clear_quotations([
                 {
-                    "id": '"<ID des Bundeslandes>"',
+                    "id": "<ID des Bundeslandes>",
                     "name": "<Name des Bundeslandes>"
                 }
             ]),

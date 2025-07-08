@@ -5,7 +5,7 @@ from django.contrib.auth.models import Group
 import base64
 
 from .models import Court, CourtType, Feedback, RejectionReason, DetailedFeedback, CameraPerspective, \
-    ConferencingSoftware
+    ConferencingSoftware, States
 
 User = get_user_model()
 
@@ -363,3 +363,29 @@ class CourtTypeCreateTests(CourtDatabaseTestCase):
         response = self.post_auth(self.url, request_data)
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.content.decode('utf-8'), "Error creating court type: UNIQUE constraint failed: court_database_courttype.name")
+
+
+class StateGetTests(CourtDatabaseTestCase):
+    def setUp(self):
+        super().setUp()
+        self.url = reverse('court-database-restapi-state')
+
+    def test_get_state_unauthenticated(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.content.decode('utf-8'), "Unauthorized")
+
+    def test_get_state(self):
+        response = self.get_auth(self.url)
+        self.assertEqual(response.status_code, 200)
+        states = response.json()
+        self.assertEqual(len(states), len(States))
+        for state_id, state_name in States.choices:
+            found = False
+            for response_state in states:
+                if response_state['id'] == state_id:
+                    found = True
+                    self.assertEqual(response_state['name'], state_name)
+                    break
+            if not found:
+                self.fail(f"State with ID {state_id} not found in response")

@@ -170,7 +170,7 @@ def rest_api_court(request):
         except IntegrityError as e:
             return HttpResponse(status=400, content=f"Error creating court: {str(e)}")
         except InvalidStateError as e:
-            return HttpResponse(status=400, content=f"Invalid state provided: {str(e)}")
+            return HttpResponse(status=404, content=f"Invalid state provided: {str(e)}")
         except json.JSONDecodeError:
             return HttpResponse(status=400, content="Invalid JSON format in request body")
         except Exception as e:

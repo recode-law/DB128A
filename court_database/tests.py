@@ -197,9 +197,11 @@ class CourtCreateTests(CourtDatabaseTestCase):
         self.assertEqual(response.content.decode('utf-8'), "Unauthorized")
 
     def test_create_court(self):
+        parent = Court.objects.create(name="Parent Court", type=CourtType.objects.first())
         request_data = {
             'name': 'New Test Court',
-            'type': CourtType.objects.first().id
+            'type': CourtType.objects.first().id,
+            'parent': parent.id
         }
         response = self.post_auth(self.url, request_data)
         self.assertEqual(response.status_code, 201)
@@ -207,6 +209,7 @@ class CourtCreateTests(CourtDatabaseTestCase):
         court = Court.objects.get(id=data['id'])
         self.assertEqual(court.name, 'New Test Court')
         self.assertEqual(court.type, CourtType.objects.first())
+        self.assertEqual(court.parent, parent)
 
     def test_create_court_missing_name(self):
         request_data = {
@@ -223,3 +226,81 @@ class CourtCreateTests(CourtDatabaseTestCase):
         response = self.post_auth(self.url, request_data)
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.content.decode('utf-8'), "Missing required field: 'type'")
+
+    def test_create_court_existing_name(self):
+        Court.objects.create(name="Existing Court", type=CourtType.objects.first())
+        request_data = {
+            'name': 'Existing Court',
+            'type': CourtType.objects.first().id
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode('utf-8'), "Error creating court: UNIQUE constraint failed: court_database_court.name")
+
+    def test_create_court_invalid_parent(self):
+        request_data = {
+            'name': 'New Test Court',
+            'type': CourtType.objects.first().id,
+            'parent': -1
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.content.decode('utf-8'), "Parent court does not exist")
+
+    def test_create_court_invalid_type(self):
+        request_data = {
+            'name': 'Existing Court',
+            'type': -1
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.content.decode('utf-8'), "Selected court type does not exist")
+
+    def test_create_court_with_address(self):
+        request_data = {
+            'name': 'New Test Court',
+            'type': CourtType.objects.first().id,
+            'address': {
+                'state': 'BY',
+                'city': 'City',
+                'postal_code': '12345',
+                'street': 'Street'
+            }
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 201)
+        data = response.json()
+        address = Court.objects.get(id=data['id']).address
+        self.assertEqual(address.state, 'BY')
+        self.assertEqual(address.city, 'City')
+        self.assertEqual(address.postal_code, '12345')
+        self.assertEqual(address.street, 'Street')
+
+    def test_create_court_incomplete_address(self):
+        request_data = {
+            'name': 'New Test Court',
+            'type': CourtType.objects.first().id,
+            'address': {
+                'state': 'BY',
+                'city': 'City',
+                'postal_code': '12345',
+            }
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode('utf-8'), "Missing required field: 'street'")
+
+    def test_create_court_invalid_state(self):
+        request_data = {
+            'name': 'New Test Court',
+            'type': CourtType.objects.first().id,
+            'address': {
+                'state': 'Bavaria',
+                'city': 'City',
+                'postal_code': '12345',
+                'street': 'Street'
+            }
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.content.decode('utf-8'), "Invalid state provided: Bavaria")

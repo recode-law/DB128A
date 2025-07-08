@@ -543,8 +543,160 @@ class FeedbackCreateTests(CourtDatabaseTestCase):
             self.assertEqual(response.status_code, 201)
 
         test_court = Court.objects.get(id=self.court.id)
-
         self.assertEqual(test_court.provides_online_service_yes_count, 8)
         self.assertEqual(test_court.provides_online_service_no_count, 4)
         self.assertTrue(test_court.provides_online_service_attr)
         self.assertEqual(test_court.online_service_quality, sum([1,1,2,3,5,5])/6)
+
+
+class DetailedFeedbackCreateTests(CourtDatabaseTestCase):
+    def setUp(self):
+        super().setUp()
+        self.url = reverse('court-database-restapi-detailed-feedback')
+        self.court = Court.objects.create(name='Feedback Court', type=CourtType.objects.first())
+        self.cam1 = CameraPerspective.objects.create(name='Test Camera Perspective 1')
+        self.cam2 = CameraPerspective.objects.create(name='Test Camera Perspective 2')
+        self.conf1 = ConferencingSoftware.objects.create(name='Test Conferencing Software 1')
+        self.conf2 = ConferencingSoftware.objects.create(name='Test Conferencing Software 2')
+
+    def test_create_detailed_feedback_unauthenticated(self):
+        response = self.client.post(self.url)
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.content.decode('utf-8'), "Unauthorized")
+
+    def test_create_detailed_feedback(self):
+        request_data = {
+            'court_id': self.court.id,
+            'online_service_possible': True,
+            'feedback': 'This is a test feedback.',
+            'camera_perspectives': [self.cam1.id, self.cam2.id],
+            'conferencing_software': [self.conf1.id, self.conf2.id],
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 201)
+        detailed_feedback = self.court.detailedfeedback_set.first()
+        self.assertEqual(detailed_feedback.court, self.court)
+        self.assertTrue(detailed_feedback.online_service_possible)
+        self.assertEqual(detailed_feedback.feedback, 'This is a test feedback.')
+        perspectives = detailed_feedback.camera_perspectives.all()
+        self.assertEqual(len(perspectives), 2)
+        self.assertEqual(perspectives[0].name, 'Test Camera Perspective 1')
+        self.assertEqual(perspectives[1].name, 'Test Camera Perspective 2')
+        software = detailed_feedback.conferencing_software.all()
+        self.assertEqual(len(software), 2)
+        self.assertEqual(software[0].name, 'Test Conferencing Software 1')
+        self.assertEqual(software[1].name, 'Test Conferencing Software 2')
+        self.assertTrue(detailed_feedback.from_api)
+        self.assertEqual(detailed_feedback.user, self.user)
+
+    def test_create_detailed_feedback_missing_court_id(self):
+        request_data = {
+            'online_service_possible': True,
+            'feedback': 'This is a test feedback.',
+            'camera_perspectives': [self.cam1.id, self.cam2.id],
+            'conferencing_software': [self.conf1.id, self.conf2.id],
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode('utf-8'), "Missing required field: 'court_id'")
+
+    def test_create_detailed_feedback_missing_online_service_possible(self):
+        request_data = {
+            'court_id': self.court.id,
+            'feedback': 'This is a test feedback.',
+            'camera_perspectives': [self.cam1.id, self.cam2.id],
+            'conferencing_software': [self.conf1.id, self.conf2.id],
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode('utf-8'), "Missing required field: 'online_service_possible'")
+
+    def test_create_detailed_feedback_missing_feedback(self):
+        request_data = {
+            'court_id': self.court.id,
+            'online_service_possible': True,
+            'camera_perspectives': [self.cam1.id, self.cam2.id],
+            'conferencing_software': [self.conf1.id, self.conf2.id],
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 201)
+        detailed_feedback = self.court.detailedfeedback_set.first()
+        self.assertEqual(detailed_feedback.feedback, "")
+
+    def test_create_detailed_feedback_missing_camera_perspectives(self):
+        request_data = {
+            'court_id': self.court.id,
+            'online_service_possible': True,
+            'feedback': 'This is a test feedback.',
+            'conferencing_software': [self.conf1.id, self.conf2.id],
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 201)
+
+    def test_create_detailed_feedback_missing_conferencing_software(self):
+        request_data = {
+            'court_id': self.court.id,
+            'online_service_possible': True,
+            'feedback': 'This is a test feedback.',
+            'camera_perspectives': [self.cam1.id, self.cam2.id],
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 201)
+
+    def test_create_detailed_feedback_invalid_court(self):
+        request_data = {
+            'court_id': -1,
+            'online_service_possible': True,
+            'feedback': 'This is a test feedback.',
+            'camera_perspectives': [self.cam1.id, self.cam2.id],
+            'conferencing_software': [self.conf1.id, self.conf2.id],
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.content.decode('utf-8'), "Selected Court does not exist")
+
+    def test_create_detailed_feedback_invalid_camera_perspective(self):
+        request_data = {
+            'court_id': self.court.id,
+            'online_service_possible': True,
+            'feedback': 'This is a test feedback.',
+            'camera_perspectives': [-1],
+            'conferencing_software': [self.conf1.id, self.conf2.id],
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode('utf-8'), "Invalid value provided: Invalid CameraPerspective IDs: {-1}")
+
+    def test_create_detailed_feedback_invalid_conferencing_software(self):
+        request_data = {
+            'court_id': self.court.id,
+            'online_service_possible': True,
+            'feedback': 'This is a test feedback.',
+            'camera_perspectives': [self.cam1.id, self.cam2.id],
+            'conferencing_software': [self.conf1.id, -1, -2],
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode('utf-8'), "Invalid value provided: Invalid ConferencingSoftware IDs: {-1, -2}")
+
+    def test_create_detailed_feedback_update_buffers(self):
+        for _ in range(5):
+            request_data = {
+                'court_id': self.court.id,
+                'online_service_possible': True
+            }
+            response = self.post_auth(self.url, request_data)
+            self.assertEqual(response.status_code, 201)
+
+        for _ in range(6):
+            request_data = {
+                'court_id': self.court.id,
+                'online_service_possible': False
+            }
+            response = self.post_auth(self.url, request_data)
+            self.assertEqual(response.status_code, 201)
+
+        test_court = Court.objects.get(id=self.court.id)
+        self.assertEqual(test_court.online_service_possible_yes_count, 5)
+        self.assertEqual(test_court.online_service_possible_no_count, 6)
+        self.assertFalse(test_court.online_service_possible_attr)

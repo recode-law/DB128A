@@ -73,8 +73,8 @@ def get_rest_api_info(base_url: str) -> list:
                         "detailed_feedbacks": [
                             {
                                 "online_service_possible": "<Ob Videoverhandlungen möglich sind>",
-                                "camera_perspectives": '"<Kommagetrennte Liste der Kamera-Perspektiven>"',
-                                "conferencing_software": '"<Kommagetrennte Liste der Konferenzsoftware>"',
+                                "camera_perspectives": '"<Kommagetrennte Liste der Kamera-Perspektiven IDs>"',
+                                "conferencing_software": '"<Kommagetrennte Liste der Konferenzsoftware IDs>"',
                                 "feedback": "<Freitext-Feedback>",
                                 "created_at": "<Datum der Erstellung>"
                             }
@@ -169,8 +169,8 @@ def get_rest_api_info(base_url: str) -> list:
             "request_schema": dump_and_clear_quotations({
                 "court_id": '"<ID des Gerichts>"',
                 "online_service_possible": '"<Ob Videoverhandlungen möglich sind>"',
-                "camera_perspectives": '"<Kommagetrennte Liste der Kamera-Perspektiven>"',
-                "conferencing_software": '"<Kommagetrennte Liste der Konferenzsoftware>"',
+                "camera_perspectives": '"<Kommagetrennte Liste der Kamera-Perspektiven IDs, nur wenn online_service_possible true ist, optional>"',
+                "conferencing_software": '"<Kommagetrennte Liste der Konferenzsoftware IDs, nur wenn online_service_possible true ist, optional>"',
                 "feedback": "<Freitext, optional>"
             }),
             "response_schema": None,
@@ -396,13 +396,14 @@ def create_court_detailed_feedback(data: dict, api_user: UserModel):
         user=api_user,
         court=court,
         online_service_possible=online_service_possible,
-        feedback=data["feedback"],
+        feedback=data.get("feedback", ""),
         from_api=True
     )
     feedback.save()
+    court.update_detailed_feedback_buffers()
     if online_service_possible:
         try:
-            camera_ids = set(data["camera_perspectives"])
+            camera_ids = set(data.get("camera_perspectives", []))
             found_cameras = CameraPerspective.objects.filter(id__in=camera_ids)
             found_camera_ids = set(found_cameras.values_list("id", flat=True))
             missing_ids = camera_ids - found_camera_ids
@@ -410,7 +411,7 @@ def create_court_detailed_feedback(data: dict, api_user: UserModel):
                 raise ValueError(f"Invalid CameraPerspective IDs: {missing_ids}")
             feedback.camera_perspectives.set(found_cameras)
 
-            software_ids = set(data["conferencing_software"])
+            software_ids = set(data.get("conferencing_software", []))
             found_software = ConferencingSoftware.objects.filter(id__in=software_ids)
             found_software_ids = set(found_software.values_list("id", flat=True))
             missing_software_ids = software_ids - found_software_ids
@@ -421,6 +422,7 @@ def create_court_detailed_feedback(data: dict, api_user: UserModel):
             feedback.save()
         except Exception:
             feedback.delete()
+            court.update_detailed_feedback_buffers()
             raise
 
 

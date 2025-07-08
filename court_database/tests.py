@@ -304,3 +304,62 @@ class CourtCreateTests(CourtDatabaseTestCase):
         response = self.post_auth(self.url, request_data)
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.content.decode('utf-8'), "Invalid state provided: Bavaria")
+
+class CourtTypeGetTests(CourtDatabaseTestCase):
+    def setUp(self):
+        super().setUp()
+        self.url = reverse('court-database-restapi-court-type')
+
+    def test_get_court_type_unauthenticated(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.content.decode('utf-8'), "Unauthorized")
+
+    def test_get_court_type(self):
+        CourtType.objects.create(name='New Test Court Type')
+        response = self.get_auth(self.url)
+        self.assertEqual(response.status_code, 200)
+        court_types = response.json()
+        # Four Court Types are created by default and should always be there
+        self.assertEqual(len(court_types), 5)
+        self.assertEqual(court_types[0]['name'], 'Bundesgericht')
+        self.assertEqual(court_types[1]['name'], 'Oberlandesgericht')
+        self.assertEqual(court_types[2]['name'], 'Landgericht')
+        self.assertEqual(court_types[3]['name'], 'Amtsgericht')
+        self.assertEqual(court_types[4]['name'], 'New Test Court Type')
+
+
+class CourtTypeCreateTests(CourtDatabaseTestCase):
+    def setUp(self):
+        super().setUp()
+        self.url = reverse('court-database-restapi-court-type')
+
+    def test_create_court_type_unauthenticated(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.content.decode('utf-8'), "Unauthorized")
+
+    def test_create_court_type(self):
+        request_data = {
+            'name': 'New Court Type'
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 201)
+        data = response.json()
+        court_type = CourtType.objects.get(id=data['id'])
+        self.assertEqual(court_type.name, 'New Court Type')
+
+    def test_create_court_type_missing_name(self):
+        request_data = {}
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode('utf-8'), "Missing required field: 'name'")
+
+    def test_create_court_type_existing_name(self):
+        CourtType.objects.create(name='Existing Court Type')
+        request_data = {
+            'name': 'Existing Court Type'
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode('utf-8'), "Error creating court type: UNIQUE constraint failed: court_database_courttype.name")

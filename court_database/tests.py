@@ -350,8 +350,7 @@ class CourtTypeCreateTests(CourtDatabaseTestCase):
         self.assertEqual(court_type.name, 'New Court Type')
 
     def test_create_court_type_missing_name(self):
-        request_data = {}
-        response = self.post_auth(self.url, request_data)
+        response = self.post_auth(self.url)
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.content.decode('utf-8'), "Missing required field: 'name'")
 

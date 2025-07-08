@@ -369,7 +369,7 @@ def create_court_feedback(data: dict, api_user: UserModel):
     if provides_online_service:
         quality = data.get("online_service_quality", None)
         if quality not in [None, 1, 2, 3, 4, 5]:
-            raise ValueError("Invalid online service quality. Must be 1-5 or null.")
+            raise ValueError("Invalid online_service_quality. Must be 1-5 or null.")
         feedback.online_service_quality = quality
     else:
         rejection_reason = data.get("rejection_reason", None)
@@ -384,6 +384,7 @@ def create_court_feedback(data: dict, api_user: UserModel):
             raise ValueError("Either rejection_reason or other_rejection_reason must be provided, but not both.")
 
     feedback.save()
+    court.update_feedback_buffers()
 
 
 def create_court_detailed_feedback(data: dict, api_user: UserModel):

@@ -388,3 +388,163 @@ class StateGetTests(CourtDatabaseTestCase):
                     break
             if not found:
                 self.fail(f"State with ID {state_id} not found in response")
+
+
+class FeedbackCreateTests(CourtDatabaseTestCase):
+    def setUp(self):
+        super().setUp()
+        self.url = reverse('court-database-restapi-feedback')
+        self.court = Court.objects.create(name='Feedback Court', type=CourtType.objects.first())
+
+    def test_create_feedback_unauthenticated(self):
+        response = self.client.post(self.url)
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.content.decode('utf-8'), "Unauthorized")
+
+    def test_create_positive_feedback(self):
+        request_data = {
+            'court_id': self.court.id,
+            'provides_online_service': True,
+            'online_service_quality': 5
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 201)
+        feedback = self.court.feedback_set.first()
+        self.assertEqual(feedback.court, self.court)
+        self.assertTrue(feedback.provides_online_service)
+        self.assertEqual(feedback.online_service_quality, 5)
+        self.assertIsNone(feedback.rejection_reason)
+        self.assertIsNone(feedback.other_rejection_reason)
+        self.assertEqual(feedback.api_user, self.user)
+
+    def test_create_positive_feedback_no_quality(self):
+        request_data = {
+            'court_id': self.court.id,
+            'provides_online_service': True
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 201)
+        feedback = self.court.feedback_set.first()
+        self.assertEqual(feedback.court, self.court)
+        self.assertTrue(feedback.provides_online_service)
+        self.assertIsNone(feedback.online_service_quality)
+        self.assertIsNone(feedback.rejection_reason)
+        self.assertEqual(feedback.api_user, self.user)
+
+    def test_create_positive_feedback_invalid_quality(self):
+        request_data = {
+            'court_id': self.court.id,
+            'provides_online_service': True,
+            'online_service_quality': 6
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode('utf-8'), "Invalid value provided: Invalid online_service_quality. Must be 1-5 or null.")
+
+    def test_create_negative_feedback(self):
+        rejection_reason = RejectionReason.objects.create(name="Test Rejection Reason")
+        request_data = {
+            'court_id': self.court.id,
+            'provides_online_service': False,
+            'rejection_reason': rejection_reason.id
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 201)
+        feedback = self.court.feedback_set.first()
+        self.assertEqual(feedback.court, self.court)
+        self.assertFalse(feedback.provides_online_service)
+        self.assertIsNone(feedback.online_service_quality)
+        self.assertEqual(feedback.rejection_reason, rejection_reason)
+        self.assertIsNone(feedback.other_rejection_reason)
+        self.assertEqual(feedback.api_user, self.user)
+
+    def test_create_negative_feedback_other_reason(self):
+        request_data = {
+            'court_id': self.court.id,
+            'provides_online_service': False,
+            'other_rejection_reason': 'This is a test reason'
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 201)
+        feedback = self.court.feedback_set.first()
+        self.assertEqual(feedback.court, self.court)
+        self.assertFalse(feedback.provides_online_service)
+        self.assertIsNone(feedback.online_service_quality)
+        self.assertIsNone(feedback.rejection_reason)
+        self.assertEqual(feedback.other_rejection_reason, 'This is a test reason')
+        self.assertEqual(feedback.api_user, self.user)
+
+    def test_create_negative_feedback_missing_reason(self):
+        request_data = {
+            'court_id': self.court.id,
+            'provides_online_service': False
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode('utf-8'), "Invalid value provided: Either rejection_reason or other_rejection_reason must be provided, but not both.")
+
+    def test_create_negative_feedback_both_reasons(self):
+        rejection_reason = RejectionReason.objects.create(name="Test Rejection Reason")
+        request_data = {
+            'court_id': self.court.id,
+            'provides_online_service': False,
+            'rejection_reason': rejection_reason.id,
+            'other_rejection_reason': 'This is a test reason'
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode('utf-8'),"Invalid value provided: Either rejection_reason or other_rejection_reason must be provided, but not both.")
+
+    def test_create_feedback_missing_court(self):
+        request_data = {
+            'provides_online_service': True,
+            'online_service_quality': 5
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode('utf-8'), "Missing required field: 'court_id'")
+
+    def test_create_feedback_invalid_court(self):
+        request_data = {
+            'court_id': -1,
+            'provides_online_service': True,
+            'online_service_quality': 5
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.content.decode('utf-8'), "Selected Court does not exist")
+
+    def test_create_feedback_missing_provides_online_service(self):
+        request_data = {
+            'court_id': self.court.id
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode('utf-8'), "Missing required field: 'provides_online_service'")
+
+    def test_create_feedback_update_buffers(self):
+        for quality in [1,1,2,3,5,5,None,None]:
+            request_data = {
+                'court_id': self.court.id,
+                'provides_online_service': True,
+                'online_service_quality': quality
+            }
+            response = self.post_auth(self.url, request_data)
+            self.assertEqual(response.status_code, 201)
+
+        rejection_reason = RejectionReason.objects.create(name="Test Rejection Reason")
+        for _ in range(4):
+            request_data = {
+                'court_id': self.court.id,
+                'provides_online_service': False,
+                'rejection_reason': rejection_reason.id
+            }
+            response = self.post_auth(self.url, request_data)
+            self.assertEqual(response.status_code, 201)
+
+        test_court = Court.objects.get(id=self.court.id)
+
+        self.assertEqual(test_court.provides_online_service_yes_count, 8)
+        self.assertEqual(test_court.provides_online_service_no_count, 4)
+        self.assertTrue(test_court.provides_online_service_attr)
+        self.assertEqual(test_court.online_service_quality, sum([1,1,2,3,5,5])/6)

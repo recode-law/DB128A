@@ -249,6 +249,8 @@ def rest_api_court_feedback(request):
         return HttpResponse(status=400, content=f"Invalid value provided: {str(e)}")
     except RejectionReason.DoesNotExist:
         return HttpResponse(status=400, content="Selected rejection reason does not exist")
+    except Court.DoesNotExist:
+        return HttpResponse(status=404, content="Selected Court does not exist")
     except Exception as e:
         return HttpResponse(status=500, content=f"Internal server error: {str(e)}")
     return HttpResponse(status=201, content_type="text/plain")
@@ -269,6 +271,8 @@ def rest_api_court_detailed_feedback(request):
         return HttpResponse(status=400, content="Invalid JSON format in request body")
     except ValueError as e:
         return HttpResponse(status=400, content=f"Invalid value provided: {str(e)}")
+    except Court.DoesNotExist:
+        return HttpResponse(status=404, content="Selected Court does not exist")
     except Exception as e:
         return HttpResponse(status=500, content=f"Internal server error: {str(e)}")
     return HttpResponse(status=201, content_type="text/plain")

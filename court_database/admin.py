@@ -57,6 +57,10 @@ class CourtAdmin(DjangoObjectActions, admin.ModelAdmin):
     ]
 
 
+@admin.action(description="IP Adressen löschen")
+def reset_ip_addresses(modeladmin, request, queryset):
+    queryset.update(creator_ip=None)
+
 class FeedbackAdmin(admin.ModelAdmin):
     list_display = [
         "court",
@@ -89,6 +93,7 @@ class FeedbackAdmin(admin.ModelAdmin):
         "api_user"
     ]
 
+    actions = [reset_ip_addresses]
 
 class DetailedFeedbackAdmin(admin.ModelAdmin):
     list_display = [

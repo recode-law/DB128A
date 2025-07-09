@@ -173,6 +173,8 @@ def rest_api_court(request):
             return HttpResponse(status=404, content=f"Invalid state provided: {str(e)}")
         except json.JSONDecodeError:
             return HttpResponse(status=400, content="Invalid JSON format in request body")
+        except ValueError as e:
+            return HttpResponse(status=400, content=f"Invalid value provided: {str(e)}")
         except Exception as e:
             return HttpResponse(status=500, content=f"Internal server error: {str(e)}")
     return HttpResponse(json.dumps(response_data), status=200 if request.method == "GET" else 201, content_type="application/json")
@@ -216,6 +218,8 @@ def rest_api_court_type(request):
             return HttpResponse(status=400, content=f"Error creating court type: {str(e)}")
         except json.JSONDecodeError:
             return HttpResponse(status=400, content="Invalid JSON format in request body")
+        except ValueError as e:
+            return HttpResponse(status=400, content=f"Invalid value provided: {str(e)}")
         except Exception as e:
             return HttpResponse(status=500, content=f"Internal server error: {str(e)}")
     return HttpResponse(json.dumps(response_data), status=200 if request.method == "GET" else 201, content_type="application/json")
@@ -308,6 +312,8 @@ def rest_api_camera_perspective(request):
             return HttpResponse(status=400, content=f"Error creating camera perspective: {str(e)}")
         except json.JSONDecodeError:
             return HttpResponse(status=400, content="Invalid JSON format in request body")
+        except ValueError as e:
+            return HttpResponse(status=400, content=f"Invalid value provided: {str(e)}")
         except Exception as e:
             return HttpResponse(status=500, content=f"Internal server error: {str(e)}")
     return HttpResponse(json.dumps(response_data), status=200 if request.method == "GET" else 201, content_type="application/json")
@@ -332,6 +338,8 @@ def rest_api_conferencing_software(request):
             return HttpResponse(status=400, content=f"Error creating conferencing software: {str(e)}")
         except json.JSONDecodeError:
             return HttpResponse(status=400, content="Invalid JSON format in request body")
+        except ValueError as e:
+            return HttpResponse(status=400, content=f"Invalid value provided: {str(e)}")
         except Exception as e:
             return HttpResponse(status=500, content=f"Internal server error: {str(e)}")
     return HttpResponse(json.dumps(response_data), status=200 if request.method == "GET" else 201, content_type="application/json")

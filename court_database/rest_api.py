@@ -16,6 +16,13 @@ def dump_and_clear_quotations(data: dict | list) -> str:
     return json.dumps(data, indent=2, ensure_ascii=False).replace('"\\"', "").replace('\\""', "")
 
 
+def get_non_empty(data: dict, key: str) -> str:
+    value = data[key]
+    if value is None or not value.strip():
+        raise ValueError(f'{key} cannot be empty')
+    return value
+
+
 @cache
 def get_rest_api_info(base_url: str) -> list:
     return [
@@ -249,7 +256,7 @@ def get_rest_api_info(base_url: str) -> list:
 def create_court(data: dict, api_user: UserModel):
     court = Court()
     court.api_user = api_user
-    court.name = data["name"]
+    court.name = get_non_empty(data, "name")
     court.type = CourtType.objects.get(id=data["type"])
 
     if parent := data.get("parent"):
@@ -257,9 +264,9 @@ def create_court(data: dict, api_user: UserModel):
 
     if address := data.get("address"):
         state = address["state"]
-        city = address["city"]
-        postal_code = address["postal_code"]
-        street = address["street"]
+        city = get_non_empty(address, "city")
+        postal_code = get_non_empty(address, "postal_code")
+        street = get_non_empty(address, "street")
 
         if not state in States.names:
             raise InvalidStateError(state)
@@ -339,7 +346,8 @@ def get_court_detail(data: dict):
 
 
 def create_court_type(data: dict, api_user: UserModel):
-    court_type = CourtType(name=data["name"], api_user=api_user)
+    name = get_non_empty(data, "name")
+    court_type = CourtType(name=name, api_user=api_user)
     court_type.save()
     return {
         "id": court_type.id,
@@ -396,7 +404,7 @@ def create_court_detailed_feedback(data: dict, api_user: UserModel):
         user=api_user,
         court=court,
         online_service_possible=online_service_possible,
-        feedback=data.get("feedback", ""),
+        feedback=data.get("feedback", "").strip(),
         from_api=True
     )
     feedback.save()
@@ -427,7 +435,8 @@ def create_court_detailed_feedback(data: dict, api_user: UserModel):
 
 
 def create_camera_perspective(data: dict, api_user: UserModel):
-    camera = CameraPerspective(name=data["name"], api_user=api_user)
+    name = get_non_empty(data, "name")
+    camera = CameraPerspective(name=name, api_user=api_user)
     camera.save()
     return {
         "id": camera.id
@@ -435,7 +444,8 @@ def create_camera_perspective(data: dict, api_user: UserModel):
 
 
 def create_conferencing_software(data: dict, api_user: UserModel):
-    software = ConferencingSoftware(name=data["name"], api_user=api_user)
+    name = get_non_empty(data, "name")
+    software = ConferencingSoftware(name=name, api_user=api_user)
     software.save()
     return {
         "id": software.id

@@ -220,6 +220,15 @@ class CourtCreateTests(CourtDatabaseTestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.content.decode('utf-8'), "Missing required field: 'name'")
 
+    def test_create_court_empty_name(self):
+        request_data = {
+            'name': '',
+            'type': CourtType.objects.first().id
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode('utf-8'), "Invalid value provided: name cannot be empty")
+
     def test_create_court_missing_type(self):
         request_data = {
             'name': 'New Test Court'
@@ -306,6 +315,52 @@ class CourtCreateTests(CourtDatabaseTestCase):
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.content.decode('utf-8'), "Invalid state provided: Bavaria")
 
+    def test_create_court_empty_city(self):
+        request_data = {
+            'name': 'New Test Court',
+            'type': CourtType.objects.first().id,
+            'address': {
+                'state': 'BY',
+                'city': '',
+                'postal_code': '12345',
+                'street': 'Street'
+            }
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode('utf-8'), "Invalid value provided: city cannot be empty")
+
+    def test_create_court_empty_postal_code(self):
+        request_data = {
+            'name': 'New Test Court',
+            'type': CourtType.objects.first().id,
+            'address': {
+                'state': 'BY',
+                'city': 'City',
+                'postal_code': '',
+                'street': 'Street'
+            }
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode('utf-8'), "Invalid value provided: postal_code cannot be empty")
+
+    def test_create_court_empty_street(self):
+        request_data = {
+            'name': 'New Test Court',
+            'type': CourtType.objects.first().id,
+            'address': {
+                'state': 'BY',
+                'city': 'City',
+                'postal_code': '12345',
+                'street': ''
+            }
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode('utf-8'), "Invalid value provided: street cannot be empty")
+
+
 class CourtTypeGetTests(CourtDatabaseTestCase):
     def setUp(self):
         super().setUp()
@@ -354,6 +409,14 @@ class CourtTypeCreateTests(CourtDatabaseTestCase):
         response = self.post_auth(self.url)
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.content.decode('utf-8'), "Missing required field: 'name'")
+
+    def test_create_court_type_empty_name(self):
+        request_data = {
+            'name': ''
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode('utf-8'), "Invalid value provided: name cannot be empty")
 
     def test_create_court_type_existing_name(self):
         CourtType.objects.create(name='Existing Court Type')
@@ -747,6 +810,49 @@ class CameraPerspectiveGetTests(CourtDatabaseTestCase):
             self.assertEqual(camera_perspectives[i]['name'], f'Test Camera Perspective {i}')
 
 
+class CameraPerspectiveCreateTests(CourtDatabaseTestCase):
+    def setUp(self):
+        super().setUp()
+        self.url = reverse('court-database-restapi-camera-perspective')
+
+    def test_create_camera_perspective_unauthenticated(self):
+        response = self.client.post(self.url)
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.content.decode('utf-8'), "Unauthorized")
+
+    def test_create_camera_perspective(self):
+        request_data = {
+            'name': 'New Camera Perspective'
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 201)
+        data = response.json()
+        camera_perspective = CameraPerspective.objects.get(id=data['id'])
+        self.assertEqual(camera_perspective.name, 'New Camera Perspective')
+
+    def test_create_camera_perspective_missing_name(self):
+        response = self.post_auth(self.url)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode('utf-8'), "Missing required field: 'name'")
+
+    def test_create_camera_perspective_empty_name(self):
+        request_data = {
+            'name': ''
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode('utf-8'), "Invalid value provided: name cannot be empty")
+
+    def test_create_camera_perspective_existing_name(self):
+        CameraPerspective.objects.create(name='Existing Camera Perspective')
+        request_data = {
+            'name': 'Existing Camera Perspective'
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode('utf-8'), "Error creating camera perspective: UNIQUE constraint failed: court_database_cameraperspective.name")
+
+
 class ConferencingSoftwareGetTests(CourtDatabaseTestCase):
     def setUp(self):
         super().setUp()
@@ -767,3 +873,46 @@ class ConferencingSoftwareGetTests(CourtDatabaseTestCase):
         self.assertEqual(len(conferencing_software), self.num_of_objects)
         for i in range(self.num_of_objects):
             self.assertEqual(conferencing_software[i]['name'], f'Test Conferencing Software {i}')
+
+
+class ConferencingSoftwareCreateTests(CourtDatabaseTestCase):
+    def setUp(self):
+        super().setUp()
+        self.url = reverse('court-database-restapi-conferencing-software')
+
+    def test_create_conferencing_software_unauthenticated(self):
+        response = self.client.post(self.url)
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.content.decode('utf-8'), "Unauthorized")
+
+    def test_create_conferencing_software(self):
+        request_data = {
+            'name': 'New Conferencing Software'
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 201)
+        data = response.json()
+        conferencing_software = ConferencingSoftware.objects.get(id=data['id'])
+        self.assertEqual(conferencing_software.name, 'New Conferencing Software')
+
+    def test_create_conferencing_software_missing_name(self):
+        response = self.post_auth(self.url)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode('utf-8'), "Missing required field: 'name'")
+
+    def test_create_conferencing_software_empty_name(self):
+        request_data = {
+            'name': ''
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode('utf-8'), "Invalid value provided: name cannot be empty")
+
+    def test_create_conferencing_software_existing_name(self):
+        ConferencingSoftware.objects.create(name='Existing Conferencing Software')
+        request_data = {
+            'name': 'Existing Conferencing Software'
+        }
+        response = self.post_auth(self.url, request_data)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode('utf-8'), "Error creating conferencing software: UNIQUE constraint failed: court_database_conferencingsoftware.name")

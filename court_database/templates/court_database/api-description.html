@@ -26,7 +26,7 @@
             </div>
         </div>
         <div class="mb-2" {% if not api.response_schema %}style="display:none"{% endif %}>
-            <span class="fw-semibold me-2">Ergebnis:</span>
+            <span class="fw-semibold me-2">Antwort:</span>
             <div class="position-relative">
                 <pre id="json-{{ api.id }}-response" class="bg-body-secondary rounded p-2 mb-0"><code>{{ api.response_schema }}</code></pre>
                 <button class="btn btn-outline-secondary btn-sm position-absolute top-0 end-0 m-2" type="button" onclick="copyToClipboard('json-{{ api.id }}-response')">

@@ -1,3 +1,4 @@
+from random import randint
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth import get_user_model
@@ -706,9 +707,9 @@ class RejectionReasonGetTests(CourtDatabaseTestCase):
     def setUp(self):
         super().setUp()
         self.url = reverse('court-database-restapi-rejection-reason')
-        RejectionReason.objects.create(name='Test Rejection Reason 1')
-        RejectionReason.objects.create(name='Test Rejection Reason 2')
-        RejectionReason.objects.create(name='Test Rejection Reason 3')
+        self.num_of_objects = randint(3, 10)
+        for i in range(self.num_of_objects):
+            RejectionReason.objects.create(name=f'Test Rejection Reason {i}')
 
     def test_get_rejection_reason_unauthenticated(self):
         response = self.client.get(self.url)
@@ -719,7 +720,50 @@ class RejectionReasonGetTests(CourtDatabaseTestCase):
         response = self.get_auth(self.url)
         self.assertEqual(response.status_code, 200)
         rejection_reasons = response.json()
-        self.assertEqual(len(rejection_reasons), 3)
-        self.assertEqual(rejection_reasons[0]['name'], 'Test Rejection Reason 1')
-        self.assertEqual(rejection_reasons[1]['name'], 'Test Rejection Reason 2')
-        self.assertEqual(rejection_reasons[2]['name'], 'Test Rejection Reason 3')
+        self.assertEqual(len(rejection_reasons), self.num_of_objects)
+        for i in range(self.num_of_objects):
+            self.assertEqual(rejection_reasons[i]['name'], f'Test Rejection Reason {i}')
+
+
+class CameraPerspectiveGetTests(CourtDatabaseTestCase):
+    def setUp(self):
+        super().setUp()
+        self.url = reverse('court-database-restapi-camera-perspective')
+        self.num_of_objects = randint(3, 10)
+        for i in range(self.num_of_objects):
+            CameraPerspective.objects.create(name=f'Test Camera Perspective {i}')
+
+    def test_get_camera_perspective_unauthenticated(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.content.decode('utf-8'), "Unauthorized")
+
+    def test_get_camera_perspective(self):
+        response = self.get_auth(self.url)
+        self.assertEqual(response.status_code, 200)
+        camera_perspectives = response.json()
+        self.assertEqual(len(camera_perspectives), self.num_of_objects)
+        for i in range(self.num_of_objects):
+            self.assertEqual(camera_perspectives[i]['name'], f'Test Camera Perspective {i}')
+
+
+class ConferencingSoftwareGetTests(CourtDatabaseTestCase):
+    def setUp(self):
+        super().setUp()
+        self.url = reverse('court-database-restapi-conferencing-software')
+        self.num_of_objects = randint(3, 10)
+        for i in range(self.num_of_objects):
+            ConferencingSoftware.objects.create(name=f'Test Conferencing Software {i}')
+
+    def test_get_conferencing_software_unauthenticated(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.content.decode('utf-8'), "Unauthorized")
+
+    def test_get_conferencing_software(self):
+        response = self.get_auth(self.url)
+        self.assertEqual(response.status_code, 200)
+        conferencing_software = response.json()
+        self.assertEqual(len(conferencing_software), self.num_of_objects)
+        for i in range(self.num_of_objects):
+            self.assertEqual(conferencing_software[i]['name'], f'Test Conferencing Software {i}')

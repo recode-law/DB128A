@@ -30,7 +30,7 @@ def get_rest_api_info(base_url: str) -> list:
             "id": "get-court-ids",
             "title": "Gericht IDs abfragen",
             "method": "GET",
-            "url": f"{base_url}{reverse('court-database-restapi-court')}",
+            "url": f"{base_url}{reverse('court-database-restapi-court')}?per_page=<Anzahl IDs pro Seite>&page=<Seitenzahl>",
             "description": "Gibt eine paginierte Liste von Gericht-IDs und Namen zurück.",
             "request_schema": None,
             "response_schema": dump_and_clear_quotations({

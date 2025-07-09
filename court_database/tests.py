@@ -700,3 +700,26 @@ class DetailedFeedbackCreateTests(CourtDatabaseTestCase):
         self.assertEqual(test_court.online_service_possible_yes_count, 5)
         self.assertEqual(test_court.online_service_possible_no_count, 6)
         self.assertFalse(test_court.online_service_possible_attr)
+
+
+class RejectionReasonGetTests(CourtDatabaseTestCase):
+    def setUp(self):
+        super().setUp()
+        self.url = reverse('court-database-restapi-rejection-reason')
+        RejectionReason.objects.create(name='Test Rejection Reason 1')
+        RejectionReason.objects.create(name='Test Rejection Reason 2')
+        RejectionReason.objects.create(name='Test Rejection Reason 3')
+
+    def test_get_rejection_reason_unauthenticated(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.content.decode('utf-8'), "Unauthorized")
+
+    def test_get_rejection_reason(self):
+        response = self.get_auth(self.url)
+        self.assertEqual(response.status_code, 200)
+        rejection_reasons = response.json()
+        self.assertEqual(len(rejection_reasons), 3)
+        self.assertEqual(rejection_reasons[0]['name'], 'Test Rejection Reason 1')
+        self.assertEqual(rejection_reasons[1]['name'], 'Test Rejection Reason 2')
+        self.assertEqual(rejection_reasons[2]['name'], 'Test Rejection Reason 3')

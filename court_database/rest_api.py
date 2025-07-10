@@ -63,6 +63,18 @@ def get_rest_api_info(base_url: str) -> list:
             }),
         },
         {
+            "id": "court-percentage",
+            "title": "Gerichtsquoten abfragen",
+            "method": "GET",
+            "url": f"{base_url}{reverse('court-database-restapi-court-percentage')}?court_id=<ID des Gerichts>",
+            "description": "Liefert die Quoten für angenommene Online Verhandlungen und die Möglichkeit zur Online Verhandlung.",
+            "response_schema": dump_and_clear_quotations({
+                "court_id": '"<ID des Gerichts>"',
+                "provides_online_service_percentage": '"<Quote an angenommenen Online Verhandlungen, -1 wenn es keine Infos gibt>"',
+                "online_service_possible_percentage": '"<Quote für Möglichkeit zur Online Verhandlung, -1 wenn es keine Infos gibt>"'
+            }),
+        },
+        {
             "id": "get-court-info",
             "title": "Gerichtsinformationen abfragen",
             "method": "GET",
@@ -314,6 +326,25 @@ def search_courts(data: dict):
     }
 
 
+def court_percentage(data: dict):
+    court = Court.objects.get(id=data['court_id'])
+    provides_online_service_count = court.provides_online_service_yes_count + court.provides_online_service_no_count
+    online_service_possible_count = court.online_service_possible_yes_count + court.online_service_possible_no_count
+    if provides_online_service_count > 0:
+        provides_online_service_percentage = court.provides_online_service_yes_count / provides_online_service_count
+    else:
+        provides_online_service_percentage = -1
+    if online_service_possible_count > 0:
+        online_service_possible_percentage = court.online_service_possible_yes_count / online_service_possible_count
+    else:
+        online_service_possible_percentage = -1
+    return {
+        'court_id': court.id,
+        'provides_online_service_percentage': provides_online_service_percentage,
+        'online_service_possible_percentage': online_service_possible_percentage
+    }
+
+
 def get_court_ids(data: dict):
     per_page = int(data.get('per_page', 10))
     page = int(data.get('page', 1))
@@ -345,7 +376,7 @@ def get_court_detail(data: dict):
     if len(court_ids) > settings.COURT_LIST_LIMIT:
         raise CourtListLimitExceededError(f"Too many court IDs provided. Maximum is {settings.COURT_LIST_LIMIT}.")
 
-    courts = Court.objects.filter(id__in=court_ids)
+    courts = Court.objects.filter(id__in=court_ids).order_by("id")
 
     return {
         "courts": [
@@ -362,8 +393,8 @@ def get_court_detail(data: dict):
                 } if court.address else None,
                 "provides_online_service": court.provides_online_service_attr,
                 "online_service_possible": court.online_service_possible_attr,
-                "feedbacks": [feedback.to_dict() for feedback in court.feedback_set.all()],
-                "detailed_feedbacks": [feedback.to_dict() for feedback in court.detailedfeedback_set.all()]
+                "feedbacks": [feedback.to_dict() for feedback in court.feedback_set.order_by("id")],
+                "detailed_feedbacks": [feedback.to_dict() for feedback in court.detailedfeedback_set.order_by("id")]
             } for court in courts
         ]
     }
@@ -379,7 +410,7 @@ def create_court_type(data: dict, api_user: UserModel):
 
 
 def get_court_types():
-    court_types = CourtType.objects.all()
+    court_types = CourtType.objects.order_by("id")
     return [{"id": court_type.id, "name": court_type.name} for court_type in court_types]
 
 
@@ -477,12 +508,12 @@ def create_conferencing_software(data: dict, api_user: UserModel):
 
 
 def get_camera_perspectives():
-    return [{"id": camera.id, "name": camera.name} for camera in CameraPerspective.objects.all()]
+    return [{"id": camera.id, "name": camera.name} for camera in CameraPerspective.objects.order_by("id")]
 
 
 def get_conferencing_software():
-    return [{"id": software.id, "name": software.name} for software in ConferencingSoftware.objects.all()]
+    return [{"id": software.id, "name": software.name} for software in ConferencingSoftware.objects.order_by("id")]
 
 
 def get_rejection_reasons():
-    return [{"id": reason.id, "name": reason.name} for reason in RejectionReason.objects.all()]
+    return [{"id": reason.id, "name": reason.name} for reason in RejectionReason.objects.order_by("id")]

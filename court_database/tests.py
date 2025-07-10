@@ -254,6 +254,67 @@ class CourtSearchGetTests(CourtDatabaseTestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.content.decode('utf-8'), "Invalid value provided: query cannot be empty")
 
+
+class CourtPercentageGetTests(CourtDatabaseTestCase):
+    def setUp(self):
+        super().setUp()
+        self.url = reverse('court-database-restapi-court-percentage')
+        self.court = Court.objects.create(name='Test Court', type=CourtType.objects.first())
+
+    def test_get_court_percentage_unauthenticated(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.content.decode('utf-8'), "Unauthorized")
+
+    def test_get_court_percentage(self):
+        positive_feedback = randint(1, 20)
+        for i in range(positive_feedback):
+            Feedback.objects.create(court=self.court, provides_online_service=True)
+        negative_feedback = randint(1, 20)
+        for i in range(negative_feedback):
+            Feedback.objects.create(court=self.court, provides_online_service=False)
+
+        positive_detailed_feedback = randint(1, 20)
+        for i in range(positive_detailed_feedback):
+            DetailedFeedback.objects.create(court=self.court, user=self.user, online_service_possible=True)
+        negative_detailed_feedback = randint(1, 20)
+        for i in range(negative_detailed_feedback):
+            DetailedFeedback.objects.create(court=self.court, user=self.user, online_service_possible=False)
+
+        self.court.update_feedback_buffers()
+        self.court.update_detailed_feedback_buffers()
+
+        response = self.get_auth(self.url, {'court_id': self.court.id})
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data['court_id'], self.court.id)
+        self.assertEqual(data['provides_online_service_percentage'], positive_feedback / (positive_feedback + negative_feedback))
+        self.assertEqual(data['online_service_possible_percentage'], positive_detailed_feedback / (positive_detailed_feedback + negative_detailed_feedback))
+
+    def test_get_court_percentage_no_feedbacks(self):
+        response = self.get_auth(self.url, {'court_id': self.court.id})
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data['court_id'], self.court.id)
+        self.assertEqual(data['provides_online_service_percentage'], -1)
+        self.assertEqual(data['online_service_possible_percentage'], -1)
+
+    def test_get_court_percentage_court_id_missing(self):
+        response = self.get_auth(self.url)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode('utf-8'), "Missing parameter: 'court_id'")
+
+    def test_get_court_percentage_court_id_invalid(self):
+        response = self.get_auth(self.url, {'court_id': 'no'})
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode('utf-8'), "Invalid value provided: Field 'id' expected a number but got 'no'.")
+
+    def test_get_court_percentage_court_id_unused(self):
+        response = self.get_auth(self.url, {'court_id': -1})
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.content.decode('utf-8'), "Selected Court does not exist")
+
+
 class CourtCreateTests(CourtDatabaseTestCase):
     def setUp(self):
         super().setUp()

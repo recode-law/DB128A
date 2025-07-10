@@ -2,9 +2,9 @@ from django.urls import path
 
 from .views import (CourtListView, CourtDetailView, submit_positive_feedback, submit_negative_feedback,
                     CreateDetailedFeedbackFormView, APIInfoView, rest_api_court, rest_api_court_search,
-                    rest_api_court_detail, rest_api_court_type, rest_api_state, rest_api_court_feedback,
-                    rest_api_court_detailed_feedback, rest_api_rejection_reason, rest_api_camera_perspective,
-                    rest_api_conferencing_software)
+                    rest_api_court_percentage, rest_api_court_detail, rest_api_court_type, rest_api_state,
+                    rest_api_court_feedback, rest_api_court_detailed_feedback, rest_api_rejection_reason,
+                    rest_api_camera_perspective, rest_api_conferencing_software)
 
 urlpatterns = [
     path("", CourtListView.as_view(), name="court-database-root"),
@@ -15,6 +15,7 @@ urlpatterns = [
     path("api_info", APIInfoView.as_view(), name="court-database-api-info"),
     path("api/v1/court", rest_api_court, name="court-database-restapi-court"),
     path("api/v1/court/search", rest_api_court_search, name="court-database-restapi-court-search"),
+    path("api/v1/court/percentage", rest_api_court_percentage, name="court-database-restapi-court-percentage"),
     path("api/v1/court/detail", rest_api_court_detail, name="court-database-restapi-court-detail"),
     path("api/v1/court_type", rest_api_court_type, name="court-database-restapi-court-type"),
     path("api/v1/state", rest_api_state, name="court-database-restapi-state"),

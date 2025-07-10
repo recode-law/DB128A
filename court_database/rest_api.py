@@ -48,6 +48,21 @@ def get_rest_api_info(base_url: str) -> list:
             }),
         },
         {
+            "id": "search-court",
+            "title": "Gerichte suchen",
+            "method": "GET",
+            "url": f"{base_url}{reverse('court-database-restapi-court-search')}?query=<Suchbegriff>",
+            "description": "Sucht nach Gerichten.",
+            "response_schema": dump_and_clear_quotations({
+                "courts": [
+                    {
+                        "id": '"<ID des Gerichts>"',
+                        "name": "<Name des Gerichts>",
+                    }
+                ]
+            }),
+        },
+        {
             "id": "get-court-info",
             "title": "Gerichtsinformationen abfragen",
             "method": "GET",
@@ -67,11 +82,11 @@ def get_rest_api_info(base_url: str) -> list:
                             "postal_code": "<Postleitzahl>",
                             "street": "<Straße und Hausnummer>"
                         },
-                        "provides_online_service": "<Ob Videoverhandlungen angeboten werden>",
-                        "online_service_possible": "<Ob Videoverhandlungen möglich sind>",
+                        "provides_online_service": '"<Ob Videoverhandlungen angeboten werden>"',
+                        "online_service_possible": '"<Ob Videoverhandlungen möglich sind>"',
                         "feedbacks": [
                             {
-                                "provides_online_service": "<Ob Videoverhandlungen angeboten werden>",
+                                "provides_online_service": '"<Ob Videoverhandlungen angeboten werden>"',
                                 "online_service_quality": '"<Qualität der Videoverhandlungen [1-5], null wenn nicht angegeben>"',
                                 "rejection_reason": '"<ID des Ablehnungsgrundes, -1 wenn ein anderer Grund angegeben wurde>"',
                                 "created_at": "<Datum der Erstellung>"
@@ -79,7 +94,7 @@ def get_rest_api_info(base_url: str) -> list:
                         ],
                         "detailed_feedbacks": [
                             {
-                                "online_service_possible": "<Ob Videoverhandlungen möglich sind>",
+                                "online_service_possible": '"<Ob Videoverhandlungen möglich sind>"',
                                 "camera_perspectives": '"<Kommagetrennte Liste der Kamera-Perspektiven IDs>"',
                                 "conferencing_software": '"<Kommagetrennte Liste der Konferenzsoftware IDs>"',
                                 "feedback": "<Freitext-Feedback>",
@@ -288,6 +303,15 @@ def create_court(data: dict, api_user: UserModel):
         if court.address:
             court.address.delete()
         raise
+
+
+def search_courts(data: dict):
+    query = get_non_empty(data, "query")
+
+    courts = Court.objects.filter(name__icontains=query).order_by("name")
+    return {
+        "courts": [{"id": court.id, "name": court.name} for court in courts]
+    }
 
 
 def get_court_ids(data: dict):

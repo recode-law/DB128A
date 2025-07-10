@@ -187,6 +187,73 @@ class CourtDetailsTests(CourtDatabaseTestCase):
         self.assertEqual(response.content.decode('utf-8'), "Too many court IDs provided. Maximum is 20.")
 
 
+class CourtSearchGetTests(CourtDatabaseTestCase):
+    def setUp(self):
+        super().setUp()
+        self.url = reverse('court-database-restapi-court-search')
+        for i in range(20):
+            Court.objects.create(name=f'Test Court A {i}', type=CourtType.objects.first())
+            Court.objects.create(name=f'Test Court B {i+20}', type=CourtType.objects.first())
+
+    def test_get_court_search_unauthenticated(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.content.decode('utf-8'), "Unauthorized")
+
+    def test_get_court_search(self):
+        response = self.get_auth(self.url, {'query': 'Test Court'})
+        self.assertEqual(response.status_code, 200)
+        courts = response.json()['courts']
+        self.assertEqual(len(courts), 40)
+        for i in range(20):
+            a_found = False
+            b_found = False
+            for court in courts:
+                if court['name'] == f'Test Court A {i}':
+                    a_found = True
+                if court['name'] == f'Test Court B {i+20}':
+                    b_found = True
+            self.assertTrue(a_found)
+            self.assertTrue(b_found)
+
+    def test_get_court_search_A(self):
+        response = self.get_auth(self.url, {'query': 'A'})
+        self.assertEqual(response.status_code, 200)
+        courts = response.json()['courts']
+        self.assertEqual(len(courts), 20)
+        for i in range(20):
+            a_found = False
+            for court in courts:
+                if court['name'] == f'Test Court A {i}':
+                    a_found = True
+            self.assertTrue(a_found)
+
+    def test_get_court_search_0(self):
+        response = self.get_auth(self.url, {'query': '0'})
+        self.assertEqual(response.status_code, 200)
+        courts = response.json()['courts']
+        self.assertEqual(len(courts), 4)
+        for i in range(2):
+            a_found = False
+            b_found = False
+            for court in courts:
+                if court['name'] == f'Test Court A {i*10}':
+                    a_found = True
+                if court['name'] == f'Test Court B {(i+2)*10}':
+                    b_found = True
+            self.assertTrue(a_found)
+            self.assertTrue(b_found)
+
+    def test_get_court_search_query_missing(self):
+        response = self.get_auth(self.url)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode('utf-8'), "Missing parameter: 'query'")
+
+    def test_get_court_search_empty_query(self):
+        response = self.get_auth(self.url, {'query': ''})
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode('utf-8'), "Invalid value provided: query cannot be empty")
+
 class CourtCreateTests(CourtDatabaseTestCase):
     def setUp(self):
         super().setUp()

@@ -14,8 +14,8 @@ from helper.helper import is_member, group_required
 from user_signup.authentication import basic_auth_required
 from .forms import DetailedFeedbackForm
 from .models import Court, Feedback, States, CourtType, RejectionReason, InvalidStateError
-from .rest_api import (create_court, get_court_detail, get_court_ids, create_court_type, get_court_types, get_states,
-                       get_rest_api_info, create_court_feedback, create_court_detailed_feedback,
+from .rest_api import (create_court, search_courts, get_court_detail, get_court_ids, create_court_type, get_court_types,
+                       get_states, get_rest_api_info, create_court_feedback, create_court_detailed_feedback,
                        create_camera_perspective, create_conferencing_software, get_camera_perspectives,
                        get_conferencing_software, get_rejection_reasons, CourtListLimitExceededError)
 
@@ -178,6 +178,21 @@ def rest_api_court(request):
         except Exception as e:
             return HttpResponse(status=500, content=f"Internal server error: {str(e)}")
     return HttpResponse(json.dumps(response_data), status=200 if request.method == "GET" else 201, content_type="application/json")
+
+
+@basic_auth_required
+@group_required("Verifiziert")
+@require_http_methods(["GET"])
+def rest_api_court_search(request):
+    try:
+        response_data = search_courts(request.GET)
+    except KeyError as e:
+        return HttpResponse(status=400, content=f"Missing parameter: {str(e)}")
+    except ValueError as e:
+        return HttpResponse(status=400, content=f"Invalid value provided: {str(e)}")
+    except Exception as e:
+        return HttpResponse(status=500, content=f"Internal server error: {str(e)}")
+    return HttpResponse(json.dumps(response_data), content_type="application/json")
 
 
 @basic_auth_required

@@ -330,7 +330,10 @@ class CourtCreateTests(CourtDatabaseTestCase):
         request_data = {
             'name': 'New Test Court',
             'type': CourtType.objects.first().id,
-            'parent': parent.id
+            'parent': parent.id,
+            'address': {
+                'state': 'BY'
+            }
         }
         response = self.post_auth(self.url, request_data)
         self.assertEqual(response.status_code, 201)
@@ -342,7 +345,10 @@ class CourtCreateTests(CourtDatabaseTestCase):
 
     def test_create_court_missing_name(self):
         request_data = {
-            'type': CourtType.objects.first().id
+            'type': CourtType.objects.first().id,
+            'address': {
+                'state': 'BY'
+            }
         }
         response = self.post_auth(self.url, request_data)
         self.assertEqual(response.status_code, 400)
@@ -351,7 +357,10 @@ class CourtCreateTests(CourtDatabaseTestCase):
     def test_create_court_empty_name(self):
         request_data = {
             'name': '',
-            'type': CourtType.objects.first().id
+            'type': CourtType.objects.first().id,
+            'address': {
+                'state': 'BY'
+            }
         }
         response = self.post_auth(self.url, request_data)
         self.assertEqual(response.status_code, 400)
@@ -359,7 +368,10 @@ class CourtCreateTests(CourtDatabaseTestCase):
 
     def test_create_court_missing_type(self):
         request_data = {
-            'name': 'New Test Court'
+            'name': 'New Test Court',
+            'address': {
+                'state': 'BY'
+            }
         }
         response = self.post_auth(self.url, request_data)
         self.assertEqual(response.status_code, 400)
@@ -369,7 +381,10 @@ class CourtCreateTests(CourtDatabaseTestCase):
         Court.objects.create(name="Existing Court", type=CourtType.objects.first())
         request_data = {
             'name': 'Existing Court',
-            'type': CourtType.objects.first().id
+            'type': CourtType.objects.first().id,
+            'address': {
+                'state': 'BY'
+            }
         }
         response = self.post_auth(self.url, request_data)
         self.assertEqual(response.status_code, 400)
@@ -379,7 +394,10 @@ class CourtCreateTests(CourtDatabaseTestCase):
         request_data = {
             'name': 'New Test Court',
             'type': CourtType.objects.first().id,
-            'parent': -1
+            'parent': -1,
+            'address': {
+                'state': 'BY'
+            }
         }
         response = self.post_auth(self.url, request_data)
         self.assertEqual(response.status_code, 404)
@@ -388,13 +406,16 @@ class CourtCreateTests(CourtDatabaseTestCase):
     def test_create_court_invalid_type(self):
         request_data = {
             'name': 'Existing Court',
-            'type': -1
+            'type': -1,
+            'address': {
+                'state': 'BY'
+            }
         }
         response = self.post_auth(self.url, request_data)
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.content.decode('utf-8'), "Selected court type does not exist")
 
-    def test_create_court_with_address(self):
+    def test_create_court_with_full_address(self):
         request_data = {
             'name': 'New Test Court',
             'type': CourtType.objects.first().id,
@@ -426,7 +447,7 @@ class CourtCreateTests(CourtDatabaseTestCase):
         }
         response = self.post_auth(self.url, request_data)
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.content.decode('utf-8'), "Missing required field: 'street'")
+        self.assertEqual(response.content.decode('utf-8'), "Invalid value provided: If 'city', 'postal_code' or 'street' are provided, all three must be provided.")
 
     def test_create_court_invalid_state(self):
         request_data = {
@@ -456,7 +477,7 @@ class CourtCreateTests(CourtDatabaseTestCase):
         }
         response = self.post_auth(self.url, request_data)
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.content.decode('utf-8'), "Invalid value provided: city cannot be empty")
+        self.assertEqual(response.content.decode('utf-8'), "Invalid value provided: If 'city', 'postal_code' or 'street' are provided, all three must be provided.")
 
     def test_create_court_empty_postal_code(self):
         request_data = {
@@ -471,7 +492,7 @@ class CourtCreateTests(CourtDatabaseTestCase):
         }
         response = self.post_auth(self.url, request_data)
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.content.decode('utf-8'), "Invalid value provided: postal_code cannot be empty")
+        self.assertEqual(response.content.decode('utf-8'), "Invalid value provided: If 'city', 'postal_code' or 'street' are provided, all three must be provided.")
 
     def test_create_court_empty_street(self):
         request_data = {
@@ -486,7 +507,7 @@ class CourtCreateTests(CourtDatabaseTestCase):
         }
         response = self.post_auth(self.url, request_data)
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.content.decode('utf-8'), "Invalid value provided: street cannot be empty")
+        self.assertEqual(response.content.decode('utf-8'), "Invalid value provided: If 'city', 'postal_code' or 'street' are provided, all three must be provided.")
 
 
 class CourtTypeGetTests(CourtDatabaseTestCase):

@@ -5,6 +5,7 @@ from django.core.paginator import Paginator
 from django.conf import settings
 from django.urls import reverse
 from django.contrib.auth import get_user_model
+from django.db import transaction
 
 from court_database.models import Court, CourtType, Address, States, InvalidStateError, Feedback, DetailedFeedback, \
     RejectionReason, CameraPerspective, ConferencingSoftware
@@ -128,10 +129,10 @@ def get_rest_api_info(base_url: str) -> list:
                 "type": '"<ID der Gerichtsart>"',
                 "parent": '"<ID des übergeordneten Gerichts, optional>"',
                 "address": {
-                    "state": "<Bundesland>",
-                    "city": "<Stadt>",
-                    "postal_code": "<Postleitzahl>",
-                    "street": "<Straße und Hausnummer>"
+                    "state": "<ID des Bundeslandes>",
+                    "city": "<Stadt, optional wenn postal_code und street auch nicht angegeben sind>",
+                    "postal_code": "<Postleitzahl, optional wenn city und street auch nicht angegeben sind>",
+                    "street": "<Straße und Hausnummer, optional wenn city und postal_code auch nicht angegeben sind>"
                 }
             }),
             "response_schema": dump_and_clear_quotations({
@@ -281,39 +282,46 @@ def get_rest_api_info(base_url: str) -> list:
 
 
 def create_court(data: dict, api_user: UserModel):
-    court = Court()
-    court.api_user = api_user
-    court.name = get_non_empty(data, "name")
-    court.type = CourtType.objects.get(id=data["type"])
-
+    court_name = get_non_empty(data, "name")
+    court_type = CourtType.objects.get(id=data["type"])
+    court_parent = None
     if parent := data.get("parent"):
-        court.parent = Court.objects.get(id=parent)
+        court_parent = Court.objects.get(id=parent)
 
-    if address := data.get("address"):
-        state = address["state"]
-        city = get_non_empty(address, "city")
-        postal_code = get_non_empty(address, "postal_code")
-        street = get_non_empty(address, "street")
+    address_data = data["address"]
+    state = address_data["state"]
+    city = address_data.get("city", "")
+    postal_code = address_data.get("postal_code", "")
+    street = address_data.get("street", "")
 
-        if not state in States.names:
-            raise InvalidStateError(state)
+    if (not city or not postal_code or not street) and (city or postal_code or street):
+        raise ValueError("If 'city', 'postal_code' or 'street' are provided, all three must be provided.")
 
-        court.address = Address.objects.create(
-            state=state,
-            city=city,
-            postal_code=postal_code,
-            street=street,
-            api_user=api_user
-        )
+    if not state in States.names:
+        raise InvalidStateError(state)
+
+    court_address = Address.objects.create(
+        state=state,
+        city=city,
+        postal_code=postal_code,
+        street=street,
+        api_user=api_user
+    )
 
     try:
-        court.save()
+        with transaction.atomic():
+            court = Court.objects.create(
+                name=court_name,
+                type=court_type,
+                parent=court_parent,
+                address=court_address,
+                api_user=api_user
+            )
         return {
             "id": court.id
         }
     except Exception:
-        if court.address:
-            court.address.delete()
+        court_address.delete()
         raise
 
 

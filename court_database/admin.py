@@ -1,8 +1,7 @@
 from django.contrib import admin
 from django_object_actions import DjangoObjectActions, action
 
-from .models import (Address, Court, CourtType, Feedback, DetailedFeedback, CameraPerspective, ConferencingSoftware,
-                     RejectionReason)
+from .models import Address, Court, CourtType
 
 
 class AddressAdmin(admin.ModelAdmin):
@@ -57,73 +56,6 @@ class CourtAdmin(DjangoObjectActions, admin.ModelAdmin):
     ]
 
 
-@admin.action(description="IP Adressen löschen")
-def reset_ip_addresses(modeladmin, request, queryset):
-    queryset.update(creator_ip=None)
-
-class FeedbackAdmin(admin.ModelAdmin):
-    list_display = [
-        "court",
-        "provides_online_service",
-        "online_service_quality",
-        "rejection_reason",
-        "other_rejection_reason",
-        "creator_ip",
-        "api_user",
-        "created_at",
-        "disabled"
-    ]
-
-    list_filter = [
-        "court",
-        "provides_online_service",
-        "online_service_quality",
-        "rejection_reason",
-        "creator_ip",
-        "api_user",
-        "disabled"
-    ]
-
-    search_fields = [
-        "court__name",
-        "online_service_quality",
-        "rejection_reason",
-        "other_rejection_reason",
-        "creator_ip",
-        "api_user"
-    ]
-
-    actions = [reset_ip_addresses]
-
-class DetailedFeedbackAdmin(admin.ModelAdmin):
-    list_display = [
-        "court",
-        "online_service_possible",
-        "feedback",
-        "user",
-        "created_at",
-        "disabled"
-    ]
-
-    list_filter = [
-        "user",
-        "court",
-        "online_service_possible",
-        "disabled"
-    ]
-
-    search_fields = [
-        "court__name",
-        "user__username",
-        "feedback"
-    ]
-
-
 admin.site.register(Address, AddressAdmin)
 admin.site.register(Court, CourtAdmin)
 admin.site.register(CourtType)
-admin.site.register(Feedback, FeedbackAdmin)
-admin.site.register(DetailedFeedback, DetailedFeedbackAdmin)
-admin.site.register(CameraPerspective)
-admin.site.register(ConferencingSoftware)
-admin.site.register(RejectionReason)

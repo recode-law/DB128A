@@ -17,7 +17,7 @@
         Ihre Angaben werden nach internen Vorgaben vor der Veröffentlichung überprüft, sofern Sie als Person nicht vorab
         durch uns <a href="{% url "user-signup-request" %}">verifiziert wurden</a>.
     </p>
-    <p>Weitere Informationen finden Sie in unserem <a href="{% url "faq" %}">FAQ</a>.</p>
+    <p>Weitere Informationen finden Sie in unserem <a href="{% url "video-conference-faq" %}">FAQ</a>.</p>
     <h1>Gerichte</h1>
     <form role="search" method="get">
         <div class="row mt-3">
@@ -75,20 +75,20 @@
                 <th>Ablehnungsgründe</th>
             </tr>
             {% for court in page_obj %}
-                <tr style="cursor: pointer;" onclick="window.location.href='{% url 'court-database-court-detail' court.pk %}'">
+                <tr style="cursor: pointer;" onclick="window.location.href='{% url 'video-conference-court-detail' court.pk %}'">
                     <td>{{ court.name }}</td>
                     <td>
                         <div style="display: flex">
                             <div class="mx-auto">
-                                {% include "court_database/court-online-service-possible.html" %}
+                                {% include "video_conference/court-online-service-possible.html" %}
                             </div>
                         </div>
                     </td>
                     <td>
-                        {% include "court_database/court-online-service-quality.html" with width=100 %}
+                        {% include "video_conference/court-online-service-quality.html" with width=100 %}
                     </td>
                     <td>
-                        {% include "court_database/court-provides-online-service.html" %}
+                        {% include "video_conference/court-provides-online-service.html" %}
                     </td>
                     <td>
                         <div style="display: flex">

@@ -1,5 +1,5 @@
 from django.contrib.sitemaps import Sitemap
-from django.urls import reverse
+from .models import Court
 
 
 class BasicSitemap(Sitemap):
@@ -19,3 +19,11 @@ class BasicSitemap(Sitemap):
         if item == 'imprint':
             return 0.6
         return 0.5
+
+
+class CourtSitemap(Sitemap):
+    changefreq = "daily"
+    priority = 0.5
+
+    def items(self):
+        return Court.objects.all()

@@ -7,8 +7,8 @@ from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.db import transaction
 
-from court_database.models import Court, CourtType, Address, States, InvalidStateError, Feedback, DetailedFeedback, \
-    RejectionReason, CameraPerspective, ConferencingSoftware
+from court_database.models import Court, CourtType, Address, States, InvalidStateError
+from video_conference.models import Feedback, DetailedFeedback, RejectionReason, CameraPerspective, ConferencingSoftware
 
 UserModel = get_user_model()
 
@@ -31,7 +31,7 @@ def get_rest_api_info(base_url: str) -> list:
             "id": "get-court-ids",
             "title": "Gericht IDs abfragen",
             "method": "GET",
-            "url": f"{base_url}{reverse('court-database-restapi-court')}?per_page=<Anzahl IDs pro Seite>&page=<Seitenzahl>",
+            "url": f"{base_url}{reverse('video-conference-restapi-court')}?per_page=<Anzahl IDs pro Seite>&page=<Seitenzahl>",
             "description": "Gibt eine paginierte Liste von Gericht-IDs und Namen zurück.",
             "request_schema": None,
             "response_schema": dump_and_clear_quotations({
@@ -52,7 +52,7 @@ def get_rest_api_info(base_url: str) -> list:
             "id": "search-court",
             "title": "Gerichte suchen",
             "method": "GET",
-            "url": f"{base_url}{reverse('court-database-restapi-court-search')}?query=<Suchbegriff>",
+            "url": f"{base_url}{reverse('video-conference-restapi-court-search')}?query=<Suchbegriff>",
             "description": "Sucht nach Gerichten.",
             "response_schema": dump_and_clear_quotations({
                 "courts": [
@@ -67,7 +67,7 @@ def get_rest_api_info(base_url: str) -> list:
             "id": "court-percentage",
             "title": "Gerichtsquoten abfragen",
             "method": "GET",
-            "url": f"{base_url}{reverse('court-database-restapi-court-percentage')}?court_id=<ID des Gerichts>",
+            "url": f"{base_url}{reverse('video-conference-restapi-court-percentage')}?court_id=<ID des Gerichts>",
             "description": "Liefert die Quoten für angenommene Online Verhandlungen und die Möglichkeit zur Online Verhandlung.",
             "response_schema": dump_and_clear_quotations({
                 "court_id": '"<ID des Gerichts>"',
@@ -79,7 +79,7 @@ def get_rest_api_info(base_url: str) -> list:
             "id": "get-court-info",
             "title": "Gerichtsinformationen abfragen",
             "method": "GET",
-            "url": f"{base_url}{reverse('court-database-restapi-court-detail')}?ids=<Kommagetrennte Liste von Gericht-IDs>",
+            "url": f"{base_url}{reverse('video-conference-restapi-court-detail')}?ids=<Kommagetrennte Liste von Gericht-IDs>",
             "description": f"Gibt detaillierte Informationen zu den spezifizierten Gerichten zurück. Maximal {settings.COURT_LIST_LIMIT} Gerichte können abgefragt werden.",
             "request_schema": None,
             "response_schema": dump_and_clear_quotations({
@@ -122,7 +122,7 @@ def get_rest_api_info(base_url: str) -> list:
             "id": "create-court",
             "title": "Gericht erstellen",
             "method": "POST",
-            "url": f"{base_url}{reverse('court-database-restapi-court')}",
+            "url": f"{base_url}{reverse('video-conference-restapi-court')}",
             "description": "Erstellt ein neues Gericht.",
             "request_schema": dump_and_clear_quotations({
                 "name": "<Name des Gerichts>",
@@ -143,7 +143,7 @@ def get_rest_api_info(base_url: str) -> list:
             "id": "get-court-types",
             "title": "Gerichtsarten abfragen",
             "method": "GET",
-            "url": f"{base_url}{reverse('court-database-restapi-court-type')}",
+            "url": f"{base_url}{reverse('video-conference-restapi-court-type')}",
             "description": "Gibt eine Liste aller Gerichtsarten zurück.",
             "request_schema": None,
             "response_schema": dump_and_clear_quotations([
@@ -157,7 +157,7 @@ def get_rest_api_info(base_url: str) -> list:
             "id": "create-court-type",
             "title": "Gerichtsart erstellen",
             "method": "POST",
-            "url": f"{base_url}{reverse('court-database-restapi-court-type')}",
+            "url": f"{base_url}{reverse('video-conference-restapi-court-type')}",
             "description": "Erstellt eine neue Gerichtsart.",
             "request_schema": dump_and_clear_quotations({
                 "name": "<Name der Gerichtsart>"
@@ -170,7 +170,7 @@ def get_rest_api_info(base_url: str) -> list:
             "id": "get-states",
             "title": "Bundesländer abfragen",
             "method": "GET",
-            "url": f"{base_url}{reverse('court-database-restapi-state')}",
+            "url": f"{base_url}{reverse('video-conference-restapi-state')}",
             "description": "Gibt eine Liste aller Bundesländer zurück.",
             "request_schema": None,
             "response_schema": dump_and_clear_quotations([
@@ -184,7 +184,7 @@ def get_rest_api_info(base_url: str) -> list:
             "id": "create-feedback",
             "title": "Feedback erstellen",
             "method": "POST",
-            "url": f"{base_url}{reverse('court-database-restapi-feedback')}",
+            "url": f"{base_url}{reverse('video-conference-restapi-feedback')}",
             "description": "Erstellt ein Feedback zu einem Gericht.",
             "request_schema": dump_and_clear_quotations({
                 "court_id": '"<ID des Gerichts>"',
@@ -199,7 +199,7 @@ def get_rest_api_info(base_url: str) -> list:
             "id": "create-detailed-feedback",
             "title": "Detailliertes Feedback erstellen",
             "method": "POST",
-            "url": f"{base_url}{reverse('court-database-restapi-detailed-feedback')}",
+            "url": f"{base_url}{reverse('video-conference-restapi-detailed-feedback')}",
             "description": "Erstellt ein detailliertes Feedback zu einem Gericht.",
             "request_schema": dump_and_clear_quotations({
                 "court_id": '"<ID des Gerichts>"',
@@ -214,7 +214,7 @@ def get_rest_api_info(base_url: str) -> list:
             "id": "get-rejection-reasons",
             "title": "Ablehnungsgründe abfragen",
             "method": "GET",
-            "url": f"{base_url}{reverse('court-database-restapi-rejection-reason')}",
+            "url": f"{base_url}{reverse('video-conference-restapi-rejection-reason')}",
             "description": "Gibt eine Liste aller Ablehnungsgründe zurück.",
             "request_schema": None,
             "response_schema": dump_and_clear_quotations([
@@ -228,7 +228,7 @@ def get_rest_api_info(base_url: str) -> list:
             "id": "get-camera-perspectives",
             "title": "Kamera-Perspektiven abfragen",
             "method": "GET",
-            "url": f"{base_url}{reverse('court-database-restapi-camera-perspective')}",
+            "url": f"{base_url}{reverse('video-conference-restapi-camera-perspective')}",
             "description": "Gibt eine Liste aller Kamera-Perspektiven zurück.",
             "request_schema": None,
             "response_schema": dump_and_clear_quotations([
@@ -242,7 +242,7 @@ def get_rest_api_info(base_url: str) -> list:
             "id": "create-camera-perspective",
             "title": "Kamera-Perspektive erstellen",
             "method": "POST",
-            "url": f"{base_url}{reverse('court-database-restapi-camera-perspective')}",
+            "url": f"{base_url}{reverse('video-conference-restapi-camera-perspective')}",
             "description": "Erstellt eine neue Kamera-Perspektive.",
             "request_schema": dump_and_clear_quotations({
                 "name": "<Name der Kamera-Perspektive>"
@@ -255,7 +255,7 @@ def get_rest_api_info(base_url: str) -> list:
             "id": "get-conferencing-software",
             "title": "Konferenzsoftware abfragen",
             "method": "GET",
-            "url": f"{base_url}{reverse('court-database-restapi-conferencing-software')}",
+            "url": f"{base_url}{reverse('video-conference-restapi-conferencing-software')}",
             "description": "Gibt eine Liste aller Konferenzsoftware zurück.",
             "request_schema": None,
             "response_schema": dump_and_clear_quotations([
@@ -269,7 +269,7 @@ def get_rest_api_info(base_url: str) -> list:
             "id": "create-conferencing-software",
             "title": "Konferenzsoftware erstellen",
             "method": "POST",
-            "url": f"{base_url}{reverse('court-database-restapi-conferencing-software')}",
+            "url": f"{base_url}{reverse('video-conference-restapi-conferencing-software')}",
             "description": "Erstellt eine neue Konferenzsoftware.",
             "request_schema": dump_and_clear_quotations({
                 "name": "<Name der Konferenzsoftware>"

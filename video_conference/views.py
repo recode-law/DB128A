@@ -13,7 +13,8 @@ from django.db import IntegrityError
 from helper.helper import is_member, group_required
 from user_signup.authentication import basic_auth_required
 from .forms import DetailedFeedbackForm
-from .models import Court, Feedback, States, CourtType, RejectionReason, InvalidStateError
+from court_database.models import Court, States, CourtType, InvalidStateError
+from video_conference.models import Feedback, RejectionReason
 from .rest_api import (create_court, search_courts, court_percentage, get_court_detail, get_court_ids,
                        create_court_type, get_court_types, get_states, get_rest_api_info, create_court_feedback,
                        create_court_detailed_feedback, create_camera_perspective, create_conferencing_software,
@@ -22,7 +23,7 @@ from .rest_api import (create_court, search_courts, court_percentage, get_court_
 
 
 class CourtListView(ListView):
-    template_name = "court_database/court-list.html"
+    template_name = "video_conference/court-list.html"
     paginate_by = 20
     model = Court
 
@@ -59,7 +60,7 @@ class CourtListView(ListView):
 
 
 class CourtDetailView(DetailView):
-    template_name = "court_database/court-detail.html"
+    template_name = "video_conference/court-detail.html"
     model = Court
     context_object_name = "court"
 
@@ -87,7 +88,7 @@ def submit_positive_feedback(request, court_id):
         feedback.creator_ip = request.META.get('REMOTE_ADDR')
         feedback.save()
         court.update_feedback_buffers()
-    return HttpResponseRedirect(reverse("court-database-court-detail", args=[court_id]))
+    return HttpResponseRedirect(reverse("video-conference-court-detail", args=[court_id]))
 
 
 def submit_negative_feedback(request, court_id):
@@ -107,11 +108,11 @@ def submit_negative_feedback(request, court_id):
         feedback.creator_ip = request.META.get('REMOTE_ADDR')
         feedback.save()
         court.update_feedback_buffers()
-    return HttpResponseRedirect(reverse("court-database-court-detail", args=[court_id]))
+    return HttpResponseRedirect(reverse("video-conference-court-detail", args=[court_id]))
 
 
 class CreateDetailedFeedbackFormView(UserPassesTestMixin, LoginRequiredMixin, CreateView):
-    template_name = "court_database/court-feedback.html"
+    template_name = "video_conference/court-feedback.html"
     form_class = DetailedFeedbackForm
     success_url = "/"
 
@@ -137,7 +138,7 @@ class CreateDetailedFeedbackFormView(UserPassesTestMixin, LoginRequiredMixin, Cr
 
 
 class APIInfoView(TemplateView):
-    template_name = "court_database/api-information.html"
+    template_name = "video_conference/api-information.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

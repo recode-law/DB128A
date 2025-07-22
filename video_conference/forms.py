@@ -1,5 +1,5 @@
 from django import forms
-from .models import DetailedFeedback
+from video_conference.models import DetailedFeedback
 
 
 class DetailedFeedbackForm(forms.ModelForm):

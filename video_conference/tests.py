@@ -5,8 +5,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 import base64
 
-from .models import Court, CourtType, Feedback, RejectionReason, DetailedFeedback, CameraPerspective, \
-    ConferencingSoftware, States
+from court_database.models import Court, CourtType, States
+from video_conference.models import Feedback, RejectionReason, DetailedFeedback, CameraPerspective, ConferencingSoftware
 
 User = get_user_model()
 
@@ -33,7 +33,7 @@ class CourtDatabaseTestCase(TestCase):
 class CourtListTests(CourtDatabaseTestCase):
     def setUp(self):
         super().setUp()
-        self.url = reverse('court-database-restapi-court')
+        self.url = reverse('video-conference-restapi-court')
         for i in range(100):
             Court.objects.create(
                 name=f"Test Court {i}",
@@ -96,7 +96,7 @@ class CourtListTests(CourtDatabaseTestCase):
 class CourtDetailsTests(CourtDatabaseTestCase):
     def setUp(self):
         super().setUp()
-        self.url = reverse('court-database-restapi-court-detail')
+        self.url = reverse('video-conference-restapi-court-detail')
         for i in range(100):
             Court.objects.create(
                 name=f"Test Court {i}",
@@ -190,7 +190,7 @@ class CourtDetailsTests(CourtDatabaseTestCase):
 class CourtSearchGetTests(CourtDatabaseTestCase):
     def setUp(self):
         super().setUp()
-        self.url = reverse('court-database-restapi-court-search')
+        self.url = reverse('video-conference-restapi-court-search')
         for i in range(20):
             Court.objects.create(name=f'Test Court A {i}', type=CourtType.objects.first())
             Court.objects.create(name=f'Test Court B {i+20}', type=CourtType.objects.first())
@@ -258,7 +258,7 @@ class CourtSearchGetTests(CourtDatabaseTestCase):
 class CourtPercentageGetTests(CourtDatabaseTestCase):
     def setUp(self):
         super().setUp()
-        self.url = reverse('court-database-restapi-court-percentage')
+        self.url = reverse('video-conference-restapi-court-percentage')
         self.court = Court.objects.create(name='Test Court', type=CourtType.objects.first())
 
     def test_get_court_percentage_unauthenticated(self):
@@ -318,7 +318,7 @@ class CourtPercentageGetTests(CourtDatabaseTestCase):
 class CourtCreateTests(CourtDatabaseTestCase):
     def setUp(self):
         super().setUp()
-        self.url = reverse('court-database-restapi-court')
+        self.url = reverse('video-conference-restapi-court')
 
     def test_create_court_unauthenticated(self):
         response = self.client.post(self.url)
@@ -513,7 +513,7 @@ class CourtCreateTests(CourtDatabaseTestCase):
 class CourtTypeGetTests(CourtDatabaseTestCase):
     def setUp(self):
         super().setUp()
-        self.url = reverse('court-database-restapi-court-type')
+        self.url = reverse('video-conference-restapi-court-type')
 
     def test_get_court_type_unauthenticated(self):
         response = self.client.get(self.url)
@@ -537,7 +537,7 @@ class CourtTypeGetTests(CourtDatabaseTestCase):
 class CourtTypeCreateTests(CourtDatabaseTestCase):
     def setUp(self):
         super().setUp()
-        self.url = reverse('court-database-restapi-court-type')
+        self.url = reverse('video-conference-restapi-court-type')
 
     def test_create_court_type_unauthenticated(self):
         response = self.client.get(self.url)
@@ -580,7 +580,7 @@ class CourtTypeCreateTests(CourtDatabaseTestCase):
 class StateGetTests(CourtDatabaseTestCase):
     def setUp(self):
         super().setUp()
-        self.url = reverse('court-database-restapi-state')
+        self.url = reverse('video-conference-restapi-state')
 
     def test_get_state_unauthenticated(self):
         response = self.client.get(self.url)
@@ -606,7 +606,7 @@ class StateGetTests(CourtDatabaseTestCase):
 class FeedbackCreateTests(CourtDatabaseTestCase):
     def setUp(self):
         super().setUp()
-        self.url = reverse('court-database-restapi-feedback')
+        self.url = reverse('video-conference-restapi-feedback')
         self.court = Court.objects.create(name='Feedback Court', type=CourtType.objects.first())
 
     def test_create_feedback_unauthenticated(self):
@@ -765,7 +765,7 @@ class FeedbackCreateTests(CourtDatabaseTestCase):
 class DetailedFeedbackCreateTests(CourtDatabaseTestCase):
     def setUp(self):
         super().setUp()
-        self.url = reverse('court-database-restapi-detailed-feedback')
+        self.url = reverse('video-conference-restapi-detailed-feedback')
         self.court = Court.objects.create(name='Feedback Court', type=CourtType.objects.first())
         self.cam1 = CameraPerspective.objects.create(name='Test Camera Perspective 1')
         self.cam2 = CameraPerspective.objects.create(name='Test Camera Perspective 2')
@@ -918,7 +918,7 @@ class DetailedFeedbackCreateTests(CourtDatabaseTestCase):
 class RejectionReasonGetTests(CourtDatabaseTestCase):
     def setUp(self):
         super().setUp()
-        self.url = reverse('court-database-restapi-rejection-reason')
+        self.url = reverse('video-conference-restapi-rejection-reason')
         self.num_of_objects = randint(3, 10)
         for i in range(self.num_of_objects):
             RejectionReason.objects.create(name=f'Test Rejection Reason {i}')
@@ -940,7 +940,7 @@ class RejectionReasonGetTests(CourtDatabaseTestCase):
 class CameraPerspectiveGetTests(CourtDatabaseTestCase):
     def setUp(self):
         super().setUp()
-        self.url = reverse('court-database-restapi-camera-perspective')
+        self.url = reverse('video-conference-restapi-camera-perspective')
         self.num_of_objects = randint(3, 10)
         for i in range(self.num_of_objects):
             CameraPerspective.objects.create(name=f'Test Camera Perspective {i}')
@@ -962,7 +962,7 @@ class CameraPerspectiveGetTests(CourtDatabaseTestCase):
 class CameraPerspectiveCreateTests(CourtDatabaseTestCase):
     def setUp(self):
         super().setUp()
-        self.url = reverse('court-database-restapi-camera-perspective')
+        self.url = reverse('video-conference-restapi-camera-perspective')
 
     def test_create_camera_perspective_unauthenticated(self):
         response = self.client.post(self.url)
@@ -999,13 +999,13 @@ class CameraPerspectiveCreateTests(CourtDatabaseTestCase):
         }
         response = self.post_auth(self.url, request_data)
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.content.decode('utf-8'), "Error creating camera perspective: UNIQUE constraint failed: court_database_cameraperspective.name")
+        self.assertEqual(response.content.decode('utf-8'), "Error creating camera perspective: UNIQUE constraint failed: video_conference_cameraperspective.name")
 
 
 class ConferencingSoftwareGetTests(CourtDatabaseTestCase):
     def setUp(self):
         super().setUp()
-        self.url = reverse('court-database-restapi-conferencing-software')
+        self.url = reverse('video-conference-restapi-conferencing-software')
         self.num_of_objects = randint(3, 10)
         for i in range(self.num_of_objects):
             ConferencingSoftware.objects.create(name=f'Test Conferencing Software {i}')
@@ -1027,7 +1027,7 @@ class ConferencingSoftwareGetTests(CourtDatabaseTestCase):
 class ConferencingSoftwareCreateTests(CourtDatabaseTestCase):
     def setUp(self):
         super().setUp()
-        self.url = reverse('court-database-restapi-conferencing-software')
+        self.url = reverse('video-conference-restapi-conferencing-software')
 
     def test_create_conferencing_software_unauthenticated(self):
         response = self.client.post(self.url)
@@ -1064,4 +1064,4 @@ class ConferencingSoftwareCreateTests(CourtDatabaseTestCase):
         }
         response = self.post_auth(self.url, request_data)
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.content.decode('utf-8'), "Error creating conferencing software: UNIQUE constraint failed: court_database_conferencingsoftware.name")
+        self.assertEqual(response.content.decode('utf-8'), "Error creating conferencing software: UNIQUE constraint failed: video_conference_conferencingsoftware.name")

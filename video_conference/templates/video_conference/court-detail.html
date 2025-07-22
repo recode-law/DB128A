@@ -3,23 +3,23 @@
 
 {% block content %}
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <script src="{% static "court_database/court-detail.js" %}"></script>
+    <script src="{% static "video_conference/court-detail.js" %}"></script>
 
     <h1>{{ court.name }}</h1>
 
     <div class="row mb-3">
         <div class="col-sm-4"><p class="mb-0">Technische Ausstattung vorhanden?</p></div>
-        <div class="col-sm-8">{% include "court_database/court-online-service-possible.html" %}</div>
+        <div class="col-sm-8">{% include "video_conference/court-online-service-possible.html" %}</div>
     </div>
 
     <div class="row mb-3">
         <div class="col-sm-4"><p class="mb-0">Technische Qualität:</p></div>
-        <div class="col-sm-8">{% include "court_database/court-online-service-quality.html" with width=200 %}</div>
+        <div class="col-sm-8">{% include "video_conference/court-online-service-quality.html" with width=200 %}</div>
     </div>
 
     <div class="row mb-3">
         <div class="col-sm-4"><p class="mb-0">Antrag auf Videoverhandlung stattgegeben?</p></div>
-        <div class="col-sm-8">{% include "court_database/court-provides-online-service.html" %}</div>
+        <div class="col-sm-8">{% include "video_conference/court-provides-online-service.html" %}</div>
     </div>
 
     {% if court.has_rejection_feedback %}
@@ -41,11 +41,11 @@
     </p>
 
     <div class="my-3">
-        {% include "court_database/court-feedback-options.html" %}
+        {% include "video_conference/court-feedback-options.html" %}
     </div>
 
     {% if court.has_detailed_feedback %}
-        {% include "court_database/court-detailed-feedback.html" %}
+        {% include "video_conference/court-detailed-feedback.html" %}
     {% endif %}
 
     {% if court.has_rejection_feedback %}

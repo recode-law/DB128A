@@ -3,7 +3,7 @@
 {% load django_bootstrap5 %}
 
 {% block content %}
-    <script src="{% static "court_database/court-feedback.js" %}"></script>
+    <script src="{% static "video_conference/court-feedback.js" %}"></script>
     <form method="post">
         {% csrf_token %}
         {% bootstrap_form form %}

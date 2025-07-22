@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'dbbackup',
     'django_object_actions',
     'court_database.apps.CourtDatabaseConfig',
-    'user_signup.apps.UserSignupConfig'
+    'user_signup.apps.UserSignupConfig',
+    'video_conference.apps.VideoConferenceConfig'
 ]
 
 MIDDLEWARE = [
@@ -50,7 +51,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'DB128A.urls'
+ROOT_URLCONF = os.environ.get("VVDE_URL_ROOT")
+if ROOT_URLCONF is None:
+    raise Exception('env var VVDE_URL_ROOT is not set')
 
 TEMPLATES = [
     {

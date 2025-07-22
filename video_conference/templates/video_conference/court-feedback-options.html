@@ -4,20 +4,20 @@
 
 {% cookie_accepted 'essential' as cookie_essential %}
 
-<link href="{% static "court_database/court-feedback-options.css" %}" rel="stylesheet">
-<script src="{% static "court_database/court-feedback-options.js" %}"></script>
+<link href="{% static "video_conference/court-feedback-options.css" %}" rel="stylesheet">
+<script src="{% static "video_conference/court-feedback-options.js" %}"></script>
 
 <div class="btn-group" role="group" aria-label="Voting Buttons">
     <button type="button" class="btn btn-success" onclick="document.getElementById('court-{{ court.id }}-positive-modal').showModal()">Antrag wurde gestattet</button>
     <button type="button" class="btn btn-danger" onclick="document.getElementById('court-{{ court.id }}-negative-modal').showModal()">Antrag wurde abgelehnt</button>
     {% if request.user|is_member:"Verifiziert" %}
-        <a class="btn btn-primary" href="{% url "court-database-create-detailed-feedback" court.pk %}">Ausführlich bewerten</a>
+        <a class="btn btn-primary" href="{% url "video-conference-create-detailed-feedback" court.pk %}">Ausführlich bewerten</a>
     {% endif %}
 </div>
 
 <dialog id="court-{{ court.id }}-positive-modal">
     <button class="btn btn-primary mb-3" onclick="document.getElementById('court-{{ court.id }}-positive-modal').close()">Schließen</button>
-    <form method="post" action="{% url "court-database-good-feedback" court.pk %}">
+    <form method="post" action="{% url "video-conference-good-feedback" court.pk %}">
         {% if cookie_essential %}
             {% csrf_token %}
         {% endif %}
@@ -35,7 +35,7 @@
 
 <dialog id="court-{{ court.id }}-negative-modal">
     <button class="btn btn-primary mb-3" onclick="document.getElementById('court-{{ court.id }}-negative-modal').close()">Schließen</button>
-    <form method="post" action="{% url "court-database-bad-feedback" court.pk %}">
+    <form method="post" action="{% url "video-conference-bad-feedback" court.pk %}">
         {% if cookie_essential %}
             {% csrf_token %}
         {% endif %}

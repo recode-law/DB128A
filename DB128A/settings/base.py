@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'court_database.apps.CourtDatabaseConfig',
     'user_signup.apps.UserSignupConfig',
     'video_conference.apps.VideoConferenceConfig',
-    'subapp_test.apps.SubappTestConfig',
     'ai_usage.apps.AiUsageConfig'
 ]
 

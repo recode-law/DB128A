@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django_object_actions',
     'court_database.apps.CourtDatabaseConfig',
     'user_signup.apps.UserSignupConfig',
-    'video_conference.apps.VideoConferenceConfig'
+    'video_conference.apps.VideoConferenceConfig',
+    'subapp_test.apps.SubappTestConfig'
 ]
 
 MIDDLEWARE = [

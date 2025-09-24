@@ -30,6 +30,7 @@
         <option value="$MODULE_DIR$/court_database/templates" />
         <option value="$MODULE_DIR$/templates" />
         <option value="$MODULE_DIR$/user_signup/templates" />
+        <option value="$MODULE_DIR$/subapp_test/templates" />
       </list>
     </option>
   </component>

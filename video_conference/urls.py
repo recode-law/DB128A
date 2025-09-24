@@ -33,16 +33,16 @@ urlpatterns = [
     path("api/v1/feedback/rejection_reason", rest_api_rejection_reason, name="video-conference-restapi-rejection-reason"),
     path("api/v1/feedback/camera_perspective", rest_api_camera_perspective, name="video-conference-restapi-camera-perspective"),
     path("api/v1/feedback/conferencing_software", rest_api_conferencing_software, name="video-conference-restapi-conferencing-software"),
-    path("faq", TemplateView.as_view(template_name="DB128A/faq.html", extra_context={
+    path("faq", TemplateView.as_view(template_name="video_conference/faq.html", extra_context={
         "title": "Fragen und Antworten"
     }), name="video-conference-faq"),
-    path("imprint", TemplateView.as_view(template_name="DB128A/imprint.html", extra_context={
+    path("imprint", TemplateView.as_view(template_name="video_conference/imprint.html", extra_context={
         "title": "Impressum"
     }), name="video-conference-imprint"),
     path("privacy", RedirectView.as_view(url="/static/privacy_statement.pdf"), name="video-conference-privacy"),
     path("user_signup/", include("user_signup.urls")),
     path("admin/", admin.site.urls),
-    path("login", LoginView.as_view(template_name="DB128A/login.html"), name="login"),
+    path("login", LoginView.as_view(template_name="video_conference/login.html"), name="login"),
     path("logout", LogoutView.as_view(), name="logout"),
     path("sitemap.xml", sitemap, {"sitemaps": {
         "basics": BasicSitemap,

@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.db.models import QuerySet
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -156,7 +157,7 @@ class Court(models.Model):
 
         return DetailedFeedback.objects.filter(court=self, disabled=False).exists()
 
-    def detailed_feedbacks(self) -> ['DetailedFeedback']:
+    def detailed_feedbacks(self) -> QuerySet['DetailedFeedback']:
         from video_conference.models import DetailedFeedback
 
         return DetailedFeedback.objects.filter(court=self, disabled=False)
@@ -190,6 +191,11 @@ class Court(models.Model):
                 rejection_chart_data[reason_name] = 1
 
         return [[reason, count] for reason, count in rejection_chart_data.items()]
+
+    def ai_feedbacks(self) -> QuerySet['AIFeedback']:
+        from ai_usage.models import AIFeedback
+
+        return AIFeedback.objects.filter(court=self)
 
     def __str__(self) -> str:
         return self.name

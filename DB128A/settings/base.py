@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'court_database.apps.CourtDatabaseConfig',
     'user_signup.apps.UserSignupConfig',
     'video_conference.apps.VideoConferenceConfig',
-    'subapp_test.apps.SubappTestConfig'
+    'subapp_test.apps.SubappTestConfig',
+    'ai_usage.apps.AiUsageConfig'
 ]
 
 MIDDLEWARE = [
@@ -67,6 +68,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'DB128A.context_processors.context_info'
             ],
         },
     },

@@ -1,0 +1,74 @@
+{% extends "DB128A/base.html" %}
+{% load pagination_tags %}
+{% load django_bootstrap5 %}
+{% load static %}
+{% load mathfilters %}
+{% load l10n %}
+
+{% block content %}
+    <p>
+        Auf KI-Verhandlung.de bieten wir die erste deutschsprachige Datenbank zu Fällen, in denen vor Gericht KI
+        gekommen sein könnte. Voreingestellt sehen Sie alle Gerichte, zu denen uns gemeldete Fälle vorliegen. Sie können
+        die Such- oder Filterfunktion nutzen und eigene Fälle mitteilen.
+    </p>
+    <p>
+        Ihre Angaben werden nach internen Vorgaben vor der Veröffentlichung überprüft, sofern Sie als Person nicht vorab
+        durch uns <a href="{% url "user-signup-request" %}">verifiziert wurden</a>.
+    </p>
+    <p>Weitere Informationen finden Sie in unserem <a href="{% url "ai-usage-faq" %}">FAQ</a>.</p>
+    <h1>Gerichte</h1>
+    <form role="search" method="get">
+        <div class="row mt-3">
+            <div class="col-12 d-flex">
+                <input class="form-control me-2" type="search" placeholder="Suche..." aria-label="Suche" name="name" value='{{ request.GET.name }}'>
+                <button class="btn btn-outline-success me-2" type="submit">Suchen</button>
+                <button class="btn btn-outline-danger" type="button" onclick="location.href='/'">Zurücksetzen</button>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-3 mt-3">
+                <label for="court_state">Bundesland:</label>
+                <select id="court_state" name="court_state" class="form-select" aria-label="Bundesland Auswahl">
+                    <option value="-">Alle</option>
+                    {% for state in states %}
+                        <option value="{{ state.0 }}" {% if request.GET.court_state == state.0 %}selected{% endif %}>{{ state.1 }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 mt-3">
+                <label for="court_type">Art:</label>
+                <select id="court_type" name="court_type" class="form-select" aria-label="Gerichtsart Auswahl">
+                    <option value="-">Alle</option>
+                    {% for court_type in court_types %}
+                        {# court_type.id must be converted to string in the test because request.GET.court_type is a string as well #}
+                        <option value="{{ court_type.id }}" {% if request.GET.court_type == court_type.id|stringformat:"i" %}selected{% endif %}>{{ court_type.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 mt-3">
+                <label for="ai_information">KI Info vorhanden:</label>
+                <select id="ai_information" name="ai_information" class="form-select" aria-label="KI Info vorhanden Auswahl">
+                    <option value="-" {% if request.GET.ai_information == "-" %}selected{% endif %}>Alle</option>
+                    <option value="True" {% if request.GET.ai_information != "-" and request.GET.ai_information != "False" %}selected{% endif %}>Ja</option>
+                    <option value="False" {% if request.GET.ai_information == "False" %}selected{% endif %}>Nein</option>
+                </select>
+            </div>
+        </div>
+    </form>
+    <div class="overflow-x-auto">
+        <table class="table table-hover table-striped table-bordered">
+            <tr>
+                <th>Gericht</th>
+            </tr>
+            {% for court in page_obj %}
+                <tr style="cursor: pointer;" onclick="window.location.href='{% url 'ai-usage-court-detail' court.pk %}'">
+                    <td>{{ court.name }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <div class="overflow-x-auto">
+        {% bootstrap_pagination page_obj url=request|create_pagination_url %}
+    </div>
+
+{% endblock %}

@@ -27,10 +27,11 @@
     <option name="TEMPLATE_CONFIGURATION" value="Django" />
     <option name="TEMPLATE_FOLDERS">
       <list>
-        <option value="$MODULE_DIR$/court_database/templates" />
         <option value="$MODULE_DIR$/templates" />
         <option value="$MODULE_DIR$/user_signup/templates" />
         <option value="$MODULE_DIR$/subapp_test/templates" />
+        <option value="$MODULE_DIR$/ai_usage/templates" />
+        <option value="$MODULE_DIR$/video_conference/templates" />
       </list>
     </option>
   </component>

@@ -59,10 +59,12 @@
         <table class="table table-hover table-striped table-bordered">
             <tr>
                 <th>Gericht</th>
+                <th>Genuzt von</th>
             </tr>
             {% for court in page_obj %}
                 <tr style="cursor: pointer;" onclick="window.location.href='{% url 'ai-usage-court-detail' court.pk %}'">
                     <td>{{ court.name }}</td>
+                    <td>{{ court.ai_usage_groups_string }}</td>
                 </tr>
             {% endfor %}
         </table>

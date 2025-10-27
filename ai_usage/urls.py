@@ -3,11 +3,12 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import path, include
 from django.views.generic import TemplateView, RedirectView
 
-from .views import CourtListView, CourtDetailView
+from .views import CourtListView, CourtDetailView, CreateAIFeedbackFormView
 
 urlpatterns = [
     path("", CourtListView.as_view(), name="index"),
     path("court/<int:pk>", CourtDetailView.as_view(), name="ai-usage-court-detail"),
+    path("court/<int:court_id>/feedback", CreateAIFeedbackFormView.as_view(), name="ai-usage-court-feedback"),
     path("faq", TemplateView.as_view(template_name="ai_usage/faq.html", extra_context={
         "title": "Fragen und Antworten"
     }), name="ai-usage-faq"),

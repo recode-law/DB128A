@@ -1,6 +1,9 @@
-from django.views.generic import ListView, DetailView
+from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
+from django.views.generic import ListView, DetailView, CreateView
 
+from ai_usage.forms import AIFeedbackForm
 from court_database.models import Court, States, CourtType
+from helper.helper import is_member
 
 
 class CourtListView(ListView):
@@ -48,4 +51,30 @@ class CourtDetailView(DetailView):
         context["meta_description"] = (f"Informieren Sie sich über die Nutzung von KI am "
                                        f"{context['court']}.")
         context["meta_keywords"] = context["court"]
+        return context
+
+
+class CreateAIFeedbackFormView(UserPassesTestMixin, LoginRequiredMixin, CreateView):
+    template_name = "ai_usage/court-feedback.html"
+    form_class = AIFeedbackForm
+    success_url = "/"
+
+    def test_func(self):
+        return is_member(self.request.user, "Verifiziert")
+
+    def get_form_kwargs(self):
+        kw = super().get_form_kwargs()
+        kw["court"] = Court.objects.get(pk=self.kwargs["court_id"])
+        kw["user"] = self.request.user
+        return kw
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        form.instance.court.update_detailed_feedback_buffers()
+        return response
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        court = Court.objects.get(pk=self.kwargs["court_id"])
+        context["title"] = f"Detailiertes Feedback für {court.name}"
         return context

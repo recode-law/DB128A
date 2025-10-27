@@ -197,5 +197,13 @@ class Court(models.Model):
 
         return AIFeedback.objects.filter(court=self)
 
+    def ai_usage_groups(self) -> QuerySet['AIUsageGroup']:
+        from ai_usage.models import AIUsageGroup
+        return AIUsageGroup.objects.filter(aifeedback__court=self).distinct()
+
+    def ai_usage_groups_string(self) -> str:
+        names = [usage_group.name for usage_group in self.ai_usage_groups()]
+        return ", ".join(names)
+
     def __str__(self) -> str:
         return self.name

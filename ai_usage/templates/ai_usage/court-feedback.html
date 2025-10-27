@@ -1,0 +1,11 @@
+{% extends "DB128A/base.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+
+{% block content %}
+    <form method="post">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        <button type="submit" class="btn btn-primary">Senden</button>
+    </form>
+{% endblock %}

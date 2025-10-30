@@ -1,5 +1,5 @@
 {% extends "DB128A/base.html" %}
-{% load pagination_tags %}
+{% load video_conference_tags %}
 {% load django_bootstrap5 %}
 {% load static %}
 {% load mathfilters %}
@@ -113,7 +113,7 @@
         </table>
     </div>
     <div class="overflow-x-auto">
-        {% bootstrap_pagination page_obj url=request|create_pagination_url %}
+        {% bootstrap_pagination page_obj url=request|create_video_conference_pagination_url %}
     </div>
 
 {% endblock %}

@@ -3,8 +3,8 @@ from django import template
 register = template.Library()
 
 
-@register.filter(name='create_pagination_url')
-def create_pagination_url(request) -> str:
+@register.filter(name='create_video_conference_pagination_url')
+def create_video_conference_pagination_url(request) -> str:
     url = '?page=1'
     if name := request.GET.get('name'):
         url += f'&name={name}'

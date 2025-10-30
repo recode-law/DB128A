@@ -1,7 +1,8 @@
-import os
+from django.conf import settings
+
 
 def context_info(request):
-    match (os.environ.get('DB128A_CONTEXT')):
+    match settings.DB128A_CONTEXT:
         case 'video_conference':
             return {
                 'context_info': {

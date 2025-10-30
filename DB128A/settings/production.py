@@ -18,9 +18,7 @@ except IOError:
     except IOError:
         Exception('Please create a %s file with random characters to generate your secret key!' % SECRET_FILE)
 
-ALLOWED_HOSTS = [
-    os.environ.get('VVDE_HOSTNAME')
-]
+ALLOWED_HOSTS = os.environ.get('VVDE_HOSTNAME').split(',')
 
 
 # Database

@@ -52,9 +52,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = os.environ.get("VVDE_URL_ROOT")
-if ROOT_URLCONF is None:
-    raise Exception('env var VVDE_URL_ROOT is not set')
+DB128A_CONTEXT = os.environ.get("DB128A_CONTEXT")
+if DB128A_CONTEXT is None:
+    raise Exception('env var DB128A_CONTEXT is not set')
+ROOT_URLCONF = f'{DB128A_CONTEXT}.urls'
 
 TEMPLATES = [
     {
@@ -73,7 +74,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'DB128A.wsgi.application'
+WSGI_APPLICATION = f'DB128A.wsgi_{DB128A_CONTEXT}.application'
 
 
 # Password validation

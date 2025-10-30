@@ -3,11 +3,11 @@ function drawChart(raw_data) {
     let data = google.visualization.arrayToDataTable(raw_data);
 
     let options = {
-        title: 'Ablehnungsgründe',
+        title: 'Nutzergruppen',
         backgroundColor: 'transparent'
     };
 
-    let chart = new google.visualization.PieChart(document.getElementById('rejection_chart'));
+    let chart = new google.visualization.PieChart(document.getElementById('ai_usage_groups_chart'));
 
     chart.draw(data, options);
 

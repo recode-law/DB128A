@@ -3,6 +3,9 @@
 {% load common_tags %}
 
 {% block content %}
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="{% static "ai_usage/court-detail.js" %}"></script>
+
     <h1>{{ court.name }}</h1>
 
     <p>
@@ -14,6 +17,14 @@
             <a class="btn btn-primary" href="{% url "ai-usage-court-feedback" court.pk %}">Information geben</a>
         {% endif %}
     </div>
+
+    {% if court.has_ai_usage_groups %}
+        <div class="row">
+            <div class="col">
+                <div class="google-chart" id="ai_usage_groups_chart" style="width: 100%; height: 500px;"></div>
+            </div>
+        </div>
+    {% endif %}
 
     <div class="my-3">
         <h3 class="mb-3">Informationen verifizierter Nutzer:</h3>
@@ -31,4 +42,13 @@
             {% endfor %}
         </table>
     </div>
+
+    {% if court.has_ai_usage_groups %}
+        <script>
+            google.charts.load('current', {'packages':['corechart']});
+            google.charts.setOnLoadCallback(function () {
+                drawChart({{ court.get_ai_usage_groups_chart_data|safe }});
+            });
+        </script>
+    {% endif %}
 {% endblock %}

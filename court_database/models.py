@@ -205,5 +205,25 @@ class Court(models.Model):
         names = [usage_group.name for usage_group in self.ai_usage_groups()]
         return ", ".join(names)
 
+    def has_ai_usage_groups(self) -> bool:
+        from ai_usage.models import AIUsageGroup
+        return AIUsageGroup.objects.filter(aifeedback__court=self).exists()
+
+    def get_ai_usage_groups_chart_data(self) -> list[list[str | int]]:
+        from ai_usage.models import AIUsageGroup
+        usage_groups = AIUsageGroup.objects.filter(aifeedback__court=self)
+
+        ai_usage_chart_data: dict[str, str | int] = {
+            "Nutzergruppe": "Anzahl"
+        }
+
+        for usage_group in usage_groups:
+            if usage_group.name in ai_usage_chart_data:
+                ai_usage_chart_data[usage_group.name] += 1
+            else:
+                ai_usage_chart_data[usage_group.name] = 1
+
+        return [[group_name, count] for group_name, count in ai_usage_chart_data.items()]
+
     def __str__(self) -> str:
         return self.name

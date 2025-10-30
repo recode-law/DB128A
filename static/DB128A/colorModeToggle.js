@@ -82,7 +82,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 function update_custom_parts() {
     update_meta_theme_color();
-    update_rejection_chart_colors();
+    update_google_chart_colors();
     update_friendly_captcha_color();
 }
 
@@ -112,21 +112,20 @@ function update_meta_theme_color() {
     theme_color_meta.content = get_theme_background_color();
 }
 
-function update_rejection_chart_colors() {
-    let rejection_chart = document.getElementById('rejection_chart');
-    if (rejection_chart && rejection_chart.children.length !== 0) {
-        rejection_chart.children[0].children[0].children[0].children[0].children;
+function update_google_chart_colors() {
+    for (let rejection_chart of document.getElementsByClassName('google-chart')) {
+        if (rejection_chart && rejection_chart.children.length !== 0) {
+            let text_color = get_theme_text_color();
 
-        let text_color = get_theme_text_color();
+            let chart_svg_parts = rejection_chart.children[0].children[0].children[0].children[0].children;
+            let chart_title = chart_svg_parts[1].children[0];
+            chart_title.setAttribute('fill', text_color);
 
-        let chart_svg_parts = document.getElementById('rejection_chart').children[0].children[0].children[0].children[0].children;
-        let chart_title = chart_svg_parts[1].children[0];
-        chart_title.setAttribute('fill', text_color);
-
-        let chart_legend = chart_svg_parts[2];
-        for (let child_index = 1; child_index < chart_legend.children.length; child_index++) {
-            for (let text of chart_legend.children[child_index].children[1].children) {
-                text.setAttribute('fill', text_color);
+            let chart_legend = chart_svg_parts[2];
+            for (let child_index = 1; child_index < chart_legend.children.length; child_index++) {
+                for (let text of chart_legend.children[child_index].children[1].children) {
+                    text.setAttribute('fill', text_color);
+                }
             }
         }
     }

@@ -7,13 +7,18 @@
 
 {% block content %}
     <p>
-        Auf KI-Verhandlung.de bieten wir die erste deutschsprachige Datenbank zu Fällen, in denen vor Gericht KI
-        gekommen sein könnte. Voreingestellt sehen Sie alle Gerichte, zu denen uns gemeldete Fälle vorliegen. Sie können
-        die Such- oder Filterfunktion nutzen und eigene Fälle mitteilen.
+        Auf KI-vor-Gericht.de bieten wir die erste deutschsprachige Datenbank zu Fällen, in denen generative KI
+        halluzinierte Inhalte produziert hat – in der Regel frei erfundene Zitate oder Rechtsansichten, aber auch andere
+        Arten von KI-generierten Argumenten. Sie erfasst nicht die allgemeine Verwendung von KI zur Vorbereitung von
+        Schriftsätzen oder Entscheidungen.
     </p>
     <p>
-        Ihre Angaben werden nach internen Vorgaben vor der Veröffentlichung überprüft, sofern Sie als Person nicht vorab
-        durch uns <a href="{% url "user-signup-request" %}">verifiziert wurden</a>.
+        Voreingestellt sehen Sie alle Gerichte, zu denen uns gemeldete Fälle vorliegen. Sie können die Such- oder
+        Filterfunktion nutzen, um nach Fällen zu suchen.
+    </p>
+    <p>
+        Insbesondere können Sie uns eigene Fälle per E-Mail mitteilen oder diese selbst erfassen, sofern Sie sich vorab
+        <a href="{% url "user-signup-request" %}">verifiziert haben</a>.
     </p>
     <p>Weitere Informationen finden Sie in unserem <a href="{% url "ai-usage-faq" %}">FAQ</a>.</p>
     <h1>Gerichte</h1>
@@ -46,8 +51,8 @@
                 </select>
             </div>
             <div class="col-md-3 mt-3">
-                <label for="ai_information">KI Info vorhanden:</label>
-                <select id="ai_information" name="ai_information" class="form-select" aria-label="KI Info vorhanden Auswahl">
+                <label for="ai_information">KI-Eintrag vorhanden:</label>
+                <select id="ai_information" name="ai_information" class="form-select" aria-label="KI-Eintrag vorhanden Auswahl">
                     <option value="-" {% if request.GET.ai_information == "-" %}selected{% endif %}>Alle</option>
                     <option value="True" {% if request.GET.ai_information != "-" and request.GET.ai_information != "False" %}selected{% endif %}>Ja</option>
                     <option value="False" {% if request.GET.ai_information == "False" %}selected{% endif %}>Nein</option>

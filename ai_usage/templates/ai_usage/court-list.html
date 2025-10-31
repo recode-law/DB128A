@@ -58,6 +58,31 @@
                     <option value="False" {% if request.GET.ai_information == "False" %}selected{% endif %}>Nein</option>
                 </select>
             </div>
+            <div class="col-md-3 mt-3">
+                <label for="ai_usage_groups_accordion">KI Nutzergruppen:</label>
+                <div class="accordion" id="ai_usage_groups_accordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne" style="
+                                padding: .375rem .75rem .375rem .75rem;
+                                font-size: 1rem;
+                                font-weight: 400;
+                                line-height: 1.5;
+                            ">Auswählen</button>
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#ai_usage_groups_accordion">
+                            <div class="accordion-body">
+                                {% for usage_group in ai_usage_groups %}
+                                    <div class="form-check">
+                                        <input type="checkbox" id="ai_usage_group_{{ usage_group.id }}" name="ai_usage_groups" value="{{ usage_group.id }}" {% if "{{ usage_group.id }}" in request.GET.ai_usage_groups %}checked{% endif %} />
+                                        <label for="ai_usage_group_{{ usage_group.id }}">{{ usage_group.name }}</label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </form>
     <div class="overflow-x-auto">

@@ -2,6 +2,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.views.generic import ListView, DetailView, CreateView
 
 from ai_usage.forms import AIFeedbackForm
+from ai_usage.models import AIUsageGroup
 from court_database.models import Court, States, CourtType
 from helper.helper import is_member
 
@@ -37,6 +38,7 @@ class CourtListView(ListView):
         context["title"] = f"Verwendung von KI an deutschen Gerichten | Seite {context['page_obj'].number}"
         context["states"] = States.choices
         context["court_types"] = CourtType.objects.all()
+        context["ai_usage_groups"] = AIUsageGroup.objects.all()
         return context
 
 

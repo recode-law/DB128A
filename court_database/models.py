@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import QuerySet
@@ -93,7 +94,12 @@ class Court(models.Model):
         verbose_name_plural = "Gerichte"
 
     def get_absolute_url(self) -> str:
-        return reverse("video-conference-court-detail", args=[self.pk])
+        match settings.DB128A_CONTEXT:
+            case 'video_conference':
+                return reverse("video-conference-court-detail", args=[self.pk])
+            case 'ai_usage':
+                return reverse("ai-usage-court-detail", args=[self.pk])
+        assert False
 
     def provides_online_service(self) -> bool:
         return self.provides_online_service_yes_count > self.provides_online_service_no_count

@@ -1,3 +1,4 @@
+from court_database.sitemaps import CourtSitemap
 from video_conference.views import (CourtListView, CourtDetailView, submit_positive_feedback, submit_negative_feedback,
                                     CreateDetailedFeedbackFormView, APIInfoView, rest_api_court, rest_api_court_search,
                                     rest_api_court_percentage, rest_api_court_detail, rest_api_court_type, rest_api_state,
@@ -13,7 +14,7 @@ import sys
 
 from django.views.generic import TemplateView, RedirectView
 
-from .sitemaps import BasicSitemap, CourtSitemap
+from .sitemaps import VideoConferenceBasicSitemap
 
 urlpatterns = [
     path("", CourtListView.as_view(), name="video-conference-root"),
@@ -45,7 +46,7 @@ urlpatterns = [
     path("login", LoginView.as_view(template_name="video_conference/login.html"), name="login"),
     path("logout", LogoutView.as_view(), name="logout"),
     path("sitemap.xml", sitemap, {"sitemaps": {
-        "basics": BasicSitemap,
+        "basics": VideoConferenceBasicSitemap,
         "courts": CourtSitemap
     }}, name="django.contrib.sitemaps.views.sitemap")
 ]

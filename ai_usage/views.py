@@ -30,6 +30,8 @@ class CourtListView(ListView):
                 object_list = object_list.filter(aifeedback__isnull=True).distinct()
         else:
             object_list = object_list.filter(aifeedback__isnull=False).distinct()
+        if ai_usage_groups := self.request.GET.getlist('ai_usage_groups'):
+            object_list = object_list.filter(aifeedback__usage_groups__id__in=ai_usage_groups).distinct()
 
         return object_list.order_by('name')
 
@@ -39,6 +41,7 @@ class CourtListView(ListView):
         context["states"] = States.choices
         context["court_types"] = CourtType.objects.all()
         context["ai_usage_groups"] = AIUsageGroup.objects.all()
+        context["selected_ai_usage_groups"] = self.request.GET.getlist('ai_usage_groups')
         return context
 
 

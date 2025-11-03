@@ -198,6 +198,11 @@ class Court(models.Model):
 
         return [[reason, count] for reason, count in rejection_chart_data.items()]
 
+    def has_ai_feedback(self) -> bool:
+        from ai_usage.models import AIFeedback
+
+        return AIFeedback.objects.filter(court=self).exists()
+
     def ai_feedbacks(self) -> QuerySet['AIFeedback']:
         from ai_usage.models import AIFeedback
 

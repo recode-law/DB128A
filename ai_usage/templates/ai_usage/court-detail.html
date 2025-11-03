@@ -9,14 +9,14 @@
     <h1>{{ court.name }}</h1>
 
     <p>
-        Sie können Ihre Erkenntnisse zu diesem Gericht gerne mitteilen. ???
+        In der folgenden Tabelle finden Sie Informationen zum KI-Einsatz, der in Zusammenhang mit einem Verfahren an
+        diesem Gericht mitgeteilt wurde.
     </p>
 
-    <div class="btn-group" role="group" aria-label="Voting Buttons">
-        {% if request.user|is_member:"Verifiziert" %}
-            <a class="btn btn-primary" href="{% url "ai-usage-court-feedback" court.pk %}">Information geben</a>
-        {% endif %}
-    </div>
+    <p>
+        Sie können als verifizierter Nutzer selbst einen Eintrag vornehmen oder uns eine E-Mail an
+        <a href="mailto:kontakt@videoverhandlung.de">kontakt@videoverhandlung.de</a> schicken.
+    </p>
 
     {% if court.has_ai_usage_groups %}
         <div class="row">
@@ -26,22 +26,30 @@
         </div>
     {% endif %}
 
-    <div class="my-3">
-        <h3 class="mb-3">Informationen verifizierter Nutzer:</h3>
-
-        <table class="table table-hover table-striped table-bordered">
-            <tr>
-                <th>Feedback</th>
-                <th>Genutzt von</th>
-            </tr>
-            {% for feedback in court.ai_feedbacks %}
-                <tr>
-                    <td>{{ feedback.text }}</td>
-                    <td>{{ feedback.ai_usage_groups_string }}</td>
-                </tr>
-            {% endfor %}
-        </table>
+    <div class="btn-group" role="group" aria-label="Voting Buttons">
+        {% if request.user|is_member:"Verifiziert" %}
+            <a class="btn btn-primary" href="{% url "ai-usage-court-feedback" court.pk %}">Information mitteilen</a>
+        {% endif %}
     </div>
+
+    {% if court.has_ai_feedback %}
+        <div class="my-3">
+            <h3 class="mb-3">Informationen verifizierter Nutzer:</h3>
+
+            <table class="table table-hover table-striped table-bordered">
+                <tr>
+                    <th>Feedback</th>
+                    <th>Genutzt von</th>
+                </tr>
+                {% for feedback in court.ai_feedbacks %}
+                    <tr>
+                        <td>{{ feedback.text }}</td>
+                        <td>{{ feedback.ai_usage_groups_string }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    {% endif %}
 
     {% if court.has_ai_usage_groups %}
         <script>

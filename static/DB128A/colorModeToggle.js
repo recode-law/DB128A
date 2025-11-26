@@ -84,6 +84,7 @@ function update_custom_parts() {
     update_meta_theme_color();
     update_google_chart_colors();
     update_friendly_captcha_color();
+    update_prose_color();
 }
 
 function rgb_to_hex(rgb_color) {
@@ -141,4 +142,17 @@ function update_friendly_captcha_color() {
             container.classList.remove('dark');
         }
     }
+}
+
+function update_prose_color() {
+    document.documentElement.style.setProperty("--prose-editor-background",
+        window.getComputedStyle(document.documentElement).getPropertyValue('--bs-body-bg'));
+    document.documentElement.style.setProperty("--prose-editor-foreground",
+        window.getComputedStyle(document.documentElement).getPropertyValue('--bs-body-color'));
+    document.documentElement.style.setProperty("--prose-editor-border-color",
+        window.getComputedStyle(document.documentElement).getPropertyValue('--bs-border-color'));
+    document.documentElement.style.setProperty("--prose-editor-active-color",
+        window.getComputedStyle(document.documentElement).getPropertyValue('--bs-primary'));
+    document.documentElement.style.setProperty("--prose-editor-disabled-color",
+        window.getComputedStyle(document.documentElement).getPropertyValue('--bs-body-bg'));
 }

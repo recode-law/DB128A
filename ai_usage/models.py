@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django_prose_editor.fields import ProseEditorField
 
 from court_database.models import Court
 
@@ -20,7 +21,15 @@ class AIUsageGroup(models.Model):
 
 class AIFeedback(models.Model):
     court = models.ForeignKey(verbose_name="Gericht", to=Court, on_delete=models.PROTECT)
-    text = models.TextField(verbose_name="Text", blank=False, null=False)
+    text = ProseEditorField(verbose_name="Text", blank=False, null=False,
+                            extensions={
+                                "Bold": True,
+                                "Italic": True,
+                                "BulletList": True,
+                                "ListItem": True,
+                                "Link": True,
+                            },
+                            sanitize=True)
     user = models.ForeignKey(verbose_name="Benutzer", to=UserModel, on_delete=models.PROTECT, null=True)
     usage_groups = models.ManyToManyField(verbose_name="Nutzergruppen", to=AIUsageGroup, blank=True)
 

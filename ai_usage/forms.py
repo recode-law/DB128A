@@ -1,5 +1,6 @@
 from django import forms
 from ai_usage.models import AIFeedback
+from django_prose_editor.widgets import ProseEditorWidget
 
 
 class AIFeedbackForm(forms.ModelForm):
@@ -17,7 +18,6 @@ class AIFeedbackForm(forms.ModelForm):
             "text": "Information"
         }
         widgets = {
-            "text": forms.Textarea(),
             "court": forms.HiddenInput(),
             "user": forms.HiddenInput()
         }

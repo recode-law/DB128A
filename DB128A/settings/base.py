@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'cookiebanner',
     'dbbackup',
     'django_object_actions',
+    'django_prose_editor',
     'court_database.apps.CourtDatabaseConfig',
     'user_signup.apps.UserSignupConfig',
     'video_conference.apps.VideoConferenceConfig',
@@ -68,6 +69,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'js_asset.context_processors.importmap',
                 'DB128A.context_processors.context_info'
             ],
         },

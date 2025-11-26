@@ -43,7 +43,7 @@
                 </tr>
                 {% for feedback in court.ai_feedbacks %}
                     <tr>
-                        <td>{{ feedback.text }}</td>
+                        <td>{{ feedback.text|safe }}</td>
                         <td>{{ feedback.ai_usage_groups_string }}</td>
                     </tr>
                 {% endfor %}

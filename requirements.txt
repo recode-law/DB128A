@@ -10,8 +10,10 @@ django-dbbackup @ git+https://github.com/truePhilipp/django-dbbackup.git@9208919
 django-mathfilters==1.0.0
 django-object-actions==4.2.0
 django-storages==1.14.2
+django-prose-editor==0.22.2
 idna==3.6
 jmespath==1.0.1
+nh3==0.3.2
 python-dateutil==2.8.2
 python-dotenv==1.0.1
 python-gnupg==0.5.2

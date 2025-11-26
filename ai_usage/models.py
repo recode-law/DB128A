@@ -4,7 +4,6 @@ from django_prose_editor.fields import ProseEditorField
 
 from court_database.models import Court
 
-
 UserModel = get_user_model()
 
 
@@ -23,11 +22,34 @@ class AIFeedback(models.Model):
     court = models.ForeignKey(verbose_name="Gericht", to=Court, on_delete=models.PROTECT)
     text = ProseEditorField(verbose_name="Text", blank=False, null=False,
                             extensions={
+                                # Core formatting
                                 "Bold": True,
                                 "Italic": True,
-                                "BulletList": True,
-                                "ListItem": True,
-                                "Link": True,
+                                "Strike": True,
+                                "Underline": True,
+                                "Subscript": True,
+                                "Superscript": True,
+                                # Code extensions
+                                "Code": True,
+                                "CodeBlock": True,
+                                # Text styling
+                                "TextAlign": True,
+                                "TextStyle": True,
+                                # Structure
+                                "Heading": True,
+                                "Paragraph": True,
+                                "HardBreak": True,
+                                "Blockquote": True,
+                                "HorizontalRule": True,
+                                # Media and figures
+                                "Image": True,
+                                "Figure": True,
+                                "Caption": True,
+                                # Advanced extensions
+                                "Link": {
+                                    "enableTarget": True,  # Enable "open in new window"
+                                    "protocols": ["https"],  # Limit protocols
+                                },
                             },
                             sanitize=True)
     user = models.ForeignKey(verbose_name="Benutzer", to=UserModel, on_delete=models.PROTECT, null=True)

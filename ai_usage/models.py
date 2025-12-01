@@ -48,7 +48,7 @@ class AIFeedback(models.Model):
                                 # Advanced extensions
                                 "Link": {
                                     "enableTarget": True,  # Enable "open in new window"
-                                    "protocols": ["https"],  # Limit protocols
+                                    "protocols": ["http", "https"],  # Limit protocols
                                 },
                             },
                             sanitize=True)

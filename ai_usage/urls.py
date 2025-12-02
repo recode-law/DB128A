@@ -16,6 +16,9 @@ urlpatterns = [
     path("faq", TemplateView.as_view(template_name="ai_usage/faq.html", extra_context={
         "title": "Fragen und Antworten"
     }), name="ai-usage-faq"),
+    path("sources", TemplateView.as_view(template_name="ai_usage/sources.html", extra_context={
+        "title": "Quellen"
+    }), name="ai-usage-sources"),
     path("imprint", TemplateView.as_view(template_name="ai_usage/imprint.html", extra_context={
         "title": "Impressum"
     }), name="ai-usage-imprint"),

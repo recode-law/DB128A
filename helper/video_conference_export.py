@@ -29,7 +29,7 @@ def export_feedback_data(location: str):
         data_writer = csv.writer(csvfile, delimiter=';')
         data_writer.writerow(['Court ID', 'Court Name', 'Feedback Type', 'Provides Online Service', 'Online Service Quality',
                               'Rejection Reason', 'Online Service Possible', 'Camera Perspectives',
-                              'Conferencing Software'])
+                              'Conferencing Software', 'Textual Information'])
 
         for feedback in Feedback.objects.filter(disabled=False).order_by('court__id'):
             data_writer.writerow([
@@ -39,6 +39,7 @@ def export_feedback_data(location: str):
                 feedback.provides_online_service,
                 feedback.online_service_quality,
                 feedback.rejection_reason if not feedback.provides_online_service and feedback.rejection_reason else feedback.other_rejection_reason,
+                '',
                 '',
                 '',
                 ''
@@ -54,5 +55,6 @@ def export_feedback_data(location: str):
                 '',
                 detailed_feedback.online_service_possible,
                 detailed_feedback.camera_perspectives_text(),
-                detailed_feedback.conferencing_software_text()
+                detailed_feedback.conferencing_software_text(),
+                detailed_feedback.feedback
             ])

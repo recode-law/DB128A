@@ -1,4 +1,5 @@
-from court_database.models import Court, Address, States, CameraPerspective, ConferencingSoftware, RejectionReason
+from court_database.models import Court, Address, States
+from video_conference.models import CameraPerspective, ConferencingSoftware, RejectionReason
 import csv
 
 

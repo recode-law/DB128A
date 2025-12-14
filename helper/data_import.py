@@ -1,34 +1,24 @@
-from court_database.models import Court, Address, States
+from court_database.models import Court, Address, States, CourtType
 from video_conference.models import CameraPerspective, ConferencingSoftware, RejectionReason
 import csv
 
 
 def load_courts_from_csv(location: str):
-    if Court.objects.count() == 0:
-        first_line_read = False
-        with open(location) as csvfile:
-            court_reader = csv.reader(csvfile, delimiter=';')
-            for row in court_reader:
-                if first_line_read:
-                    name = row[0]
-                    address = get_address(row[1])
-                    if "Bundesgerichtshof" in name or "Bundespatentgericht" in name:
-                        court_type = "BG"
-                    elif "Oberlandesgericht" in name or "Kammergericht" in name:
-                        court_type = "OG"
-                    elif "Landgericht" in name:
-                        court_type = "LG"
-                    elif "Amtsgericht" in name:
-                        court_type = "AG"
-                    else:
-                        raise Exception(f"could not determine court_type of {name}")
-                    court = Court()
-                    court.name = name
-                    court.type = court_type
-                    court.address = address
-                    court.save()
-                else:
-                    first_line_read = True
+    first_line_read = False
+    with open(location) as csvfile:
+        court_reader = csv.reader(csvfile, delimiter=';')
+        for row in court_reader:
+            if first_line_read:
+                court_type = row[0]
+                name = row[2]
+                state = row[1]
+                court = Court()
+                court.name = name
+                court.type = CourtType.objects.get(name=court_type)
+                court.address = get_address(state)
+                court.save()
+            else:
+                first_line_read = True
 
 
 def get_address(state: str) -> Address:

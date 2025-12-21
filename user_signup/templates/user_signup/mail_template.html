@@ -1,17 +1,22 @@
 {% load static %}
 
 <head>
-    <title>Videoverhandlung.de Verifikation</title>
+    <title>Verifizierung für Videoverhandlung.de und KI-vor-Gericht.de</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
 </head>
 <body style="font-family: 'Roboto', sans-serif">
-    <h1><img src="{{ url_base }}{% static 'DB128A/icons/logo.svg' %}" width="40" height="40" alt="Videoverhandlung.de Logo" style="vertical-align: middle"> Videoverhandlung.de</h1>
+    <h1>
+        <img src="{{ url_base }}{% static 'DB128A/icons/logo.svg' %}" width="40" height="40" alt="Videoverhandlung.de Logo" style="vertical-align: middle">
+        Videoverhandlung.de / KI-vor-Gericht.de
+    </h1>
 
     <p>Guten Tag {{ signup_request.user.first_name }} {{ signup_request.user.last_name }}!</p>
 
     <p>
-        Sie haben sich erfolgreich für einen Account auf <a href="{{ url_base }}{% url 'video-conference-root' %}">Videoverhandlung.de</a>
-        verifiziert. Bitte vergeben Sie über folgenden Link ein Passwort:
+        Sie haben sich erfolgreich für einen Account registriert, den Sie für
+        <a href="https://Videoverhandlung.de">Videoverhandlung.de</a> und
+        <a href="https://KI-vor-Gericht.de">KI-vor-Gericht.de</a> nutzen können.
+        Bitte vergeben Sie über folgenden Link ein Passwort:
     </p>
 
     <p>
@@ -20,12 +25,14 @@
 
     <p>
         Anschließend können Sie sich mit Ihrer E-Mail-Adresse/Ihrem Nutzernamen({{ signup_request.user.username }}) und
-        Ihrem Passwort über den <a href="{{ url_base }}{% url 'login' %}">Login</a> anmelden.
+        Ihrem Passwort über den <a href="{{ url_base }}{% url 'login' %}">Login</a> auf
+        <a href="https://Videoverhandlung.de">Videoverhandlung.de</a> und
+        <a href="https://KI-vor-Gericht.de">KI-vor-Gericht.de</a> anmelden.
     </p>
 
     <p>
-        Wir danken Ihnen sehr, dass Sie unser Projekt durch Ihre Mithilfe unterstützen. Bei Fragen können Sie sich gerne
-        melden: <a href="mailto:kontakt@videoverhandlung.de">kontakt@videoverhandlung.de</a>
+        Wir danken Ihnen sehr, dass Sie unsere Projekte durch Ihre Mithilfe unterstützen. Bei Fragen können Sie sich
+        gerne melden: <a href="mailto:kontakt@videoverhandlung.de">kontakt@videoverhandlung.de</a>
     </p>
 
     <p>

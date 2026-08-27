@@ -1,8 +1,10 @@
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
-from django.views.generic import ListView, DetailView, CreateView
+from django.urls import reverse
+from django.views.generic import ListView, DetailView, CreateView, UpdateView
+from django.views.generic.edit import ProcessFormView, ModelFormMixin
 
 from ai_usage.forms import AIFeedbackForm
-from ai_usage.models import AIUsageGroup
+from ai_usage.models import AIUsageGroup, AIFeedback
 from court_database.models import Court, States, CourtType
 from helper.helper import is_member
 
@@ -59,13 +61,12 @@ class CourtDetailView(DetailView):
         return context
 
 
-class CreateAIFeedbackFormView(UserPassesTestMixin, LoginRequiredMixin, CreateView):
+class AIFeedbackBaseView(ModelFormMixin, ProcessFormView):
     template_name = "ai_usage/court-feedback.html"
     form_class = AIFeedbackForm
-    success_url = "/"
 
-    def test_func(self):
-        return is_member(self.request.user, "Verifiziert")
+    def get_success_url(self):
+        return reverse("ai-usage-court-detail", args=[self.kwargs["court_id"]])
 
     def get_form_kwargs(self):
         kw = super().get_form_kwargs()
@@ -83,3 +84,24 @@ class CreateAIFeedbackFormView(UserPassesTestMixin, LoginRequiredMixin, CreateVi
         court = Court.objects.get(pk=self.kwargs["court_id"])
         context["title"] = f"Detailiertes Feedback für {court.name}"
         return context
+
+
+class CreateAIFeedbackFormView(UserPassesTestMixin, LoginRequiredMixin, AIFeedbackBaseView, CreateView):
+    template_name = "ai_usage/court-feedback.html"
+    form_class = AIFeedbackForm
+    success_url = "/"
+
+    def test_func(self):
+        return is_member(self.request.user, "Verifiziert")
+
+
+class UpdateAIFeedbackFormView(UserPassesTestMixin, LoginRequiredMixin, AIFeedbackBaseView, UpdateView):
+    template_name = "ai_usage/court-feedback.html"
+    form_class = AIFeedbackForm
+    model = AIFeedback
+    success_url = "/"
+
+    def test_func(self):
+        feedback = AIFeedback.objects.get(pk=self.kwargs["pk"])
+        return is_member(self.request.user, "Verifiziert") and feedback.user == self.request.user
+

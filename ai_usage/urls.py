@@ -7,12 +7,13 @@ from django.views.generic import TemplateView, RedirectView
 
 from court_database.sitemaps import CourtSitemap
 from .sitemaps import AIUsageBasicSitemap
-from .views import CourtListView, CourtDetailView, CreateAIFeedbackFormView
+from .views import CourtListView, CourtDetailView, CreateAIFeedbackFormView, UpdateAIFeedbackFormView
 
 urlpatterns = [
     path("", CourtListView.as_view(), name="ai-usage-root"),
     path("court/<int:pk>", CourtDetailView.as_view(), name="ai-usage-court-detail"),
     path("court/<int:court_id>/feedback", CreateAIFeedbackFormView.as_view(), name="ai-usage-court-feedback"),
+    path("court/<int:court_id>/feedback/<int:pk>", UpdateAIFeedbackFormView.as_view(), name="ai-usage-court-feedback-edit"),
     path("faq", TemplateView.as_view(template_name="ai_usage/faq.html", extra_context={
         "title": "Fragen und Antworten"
     }), name="ai-usage-faq"),

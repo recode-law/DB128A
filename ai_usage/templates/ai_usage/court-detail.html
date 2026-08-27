@@ -31,7 +31,12 @@
                 {% for feedback in court.ai_feedbacks %}
                     <tr>
                         <td>{{ feedback.text|safe }}</td>
-                        <td>{{ feedback.ai_usage_groups_string }}</td>
+                        <td style="display: flex; justify-content: {% if feedback.ai_usage_groups_string %}space-between{% else %}end{% endif %};">
+                            {{ feedback.ai_usage_groups_string }}
+                            {% if request.user == feedback.user %}
+                                <a class="btn btn-primary" href="{% url 'ai-usage-court-feedback-edit' court.pk feedback.pk %}">Bearbeiten</a>
+                            {% endif %}
+                        </td>
                     </tr>
                 {% endfor %}
             </table>

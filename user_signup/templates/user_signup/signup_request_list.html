@@ -29,23 +29,35 @@
                                 </div>
                                 <div class="btn-group" role="group">
                                     {% if signup_request.email_sent %}
-                                        <a type="button" class="btn btn-warning" href="{% url "user-signup-send-mail" signup_request.pk %}">
-                                            <i class="bi bi-envelope me-2"></i>Verifizierungslink Erneut Versenden
-                                        </a>
+                                        <form method="post" action="{% url "user-signup-send-mail" signup_request.pk %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-warning">
+                                                <i class="bi bi-envelope me-2"></i>Verifizierungslink Erneut Versenden
+                                            </button>
+                                        </form>
                                     {% else %}
-                                        <a type="button" class="btn btn-primary" href="{% url "user-signup-send-mail" signup_request.pk %}">
-                                            <i class="bi bi-envelope me-2"></i>Verifizierungslink Versenden
-                                        </a>
+                                        <form method="post" action="{% url "user-signup-send-mail" signup_request.pk %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="bi bi-envelope me-2"></i>Verifizierungslink Versenden
+                                            </button>
+                                        </form>
                                     {% endif %}
                                 </div>
                             </div>
                         {% else %}
                             <div class="btn-toolbar" role="toolbar">
                                 <div class="btn-group me-2" role="group">
-                                    <a type="button" class="btn btn-success" href="{% url "user-signup-accept" signup_request.pk %}"><i class="bi bi-check-lg"></i></a>
+                                    <form method="post" action="{% url "user-signup-accept" signup_request.pk %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-success"><i class="bi bi-check-lg"></i></button>
+                                    </form>
                                 </div>
                                 <div class="btn-group" role="group">
-                                    <a type="button" class="btn btn-danger" href="{% url "user-signup-reject" signup_request.pk %}"><i class="bi bi-x-lg"></i></a>
+                                    <form method="post" action="{% url "user-signup-reject" signup_request.pk %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger"><i class="bi bi-x-lg"></i></button>
+                                    </form>
                                 </div>
                             </div>
                         {% endif %}

@@ -8,6 +8,7 @@ from django.core.exceptions import PermissionDenied
 
 from django.core.mail import mail_admins
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.views.decorators.http import require_POST
 from django.contrib.auth import get_user_model
 from django.shortcuts import render
 from django.core.exceptions import ValidationError
@@ -84,6 +85,7 @@ class SignupRequestListView(UserPassesTestMixin, LoginRequiredMixin, ListView):
         return context
 
 
+@require_POST
 @login_required
 @user_passes_test(lambda user: is_member(user, "Verifizierer"))
 def signup_request_accept(request, sr_id):
@@ -92,6 +94,7 @@ def signup_request_accept(request, sr_id):
     return HttpResponseRedirect(reverse("user-signup-list"))
 
 
+@require_POST
 @login_required
 @user_passes_test(lambda user: is_member(user, "Verifizierer"))
 def signup_request_reject(request, sr_id):
@@ -100,6 +103,7 @@ def signup_request_reject(request, sr_id):
     return HttpResponseRedirect(reverse("user-signup-list"))
 
 
+@require_POST
 @login_required
 @user_passes_test(lambda user: is_member(user, "Verifizierer"))
 def signup_request_send_mail(request, sr_id):

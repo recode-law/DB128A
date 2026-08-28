@@ -22,23 +22,29 @@
     </div>
 
     {% if court.has_ai_feedback %}
-        <div class="my-3">
+        <div class="my-3 overflow-x-auto">
             <table class="table table-hover table-striped table-bordered">
-                <tr>
-                    <th>Information</th>
-                    <th>Genutzt von</th>
-                </tr>
-                {% for feedback in court.ai_feedbacks %}
+                <thead>
                     <tr>
-                        <td>{{ feedback.text|safe }}</td>
-                        <td style="display: flex; justify-content: {% if feedback.ai_usage_groups_string %}space-between{% else %}end{% endif %};">
-                            {{ feedback.ai_usage_groups_string }}
-                            {% if request.user == feedback.user %}
-                                <a class="btn btn-primary" href="{% url 'ai-usage-court-feedback-edit' court.pk feedback.pk %}">Bearbeiten</a>
-                            {% endif %}
-                        </td>
+                        <th>Information</th>
+                        <th>Genutzt von</th>
                     </tr>
-                {% endfor %}
+                </thead>
+                <tbody>
+                    {% for feedback in court.ai_feedbacks %}
+                        <tr>
+                            <td>{{ feedback.text|safe }}</td>
+                            <td>
+                                <div class="d-flex flex-wrap align-items-center gap-2 {% if feedback.ai_usage_groups_string %}justify-content-between{% else %}justify-content-end{% endif %}">
+                                    {{ feedback.ai_usage_groups_string }}
+                                    {% if request.user == feedback.user %}
+                                        <a class="btn btn-primary" href="{% url 'ai-usage-court-feedback-edit' court.pk feedback.pk %}">Bearbeiten</a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
             </table>
         </div>
     {% else %}

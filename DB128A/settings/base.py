@@ -194,11 +194,13 @@ CONTENT_SECURITY_POLICY_REPORT_ONLY = {
         # which runs its proof-of-work solver as WebAssembly inside a blob: Web Worker.
         "script-src": ["'self'", "'unsafe-inline'", "'wasm-unsafe-eval'", "https://cdn.jsdelivr.net", "https://www.gstatic.com"],
         "worker-src": ["'self'", "blob:"],
-        "style-src": ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com"],
+        # Google Charts (used on court-detail pages) injects its own stylesheets from gstatic
+        # at runtime, separately from the loader script allowed under script-src.
+        "style-src": ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com", "https://www.gstatic.com"],
         "font-src": ["'self'", "https://cdn.jsdelivr.net", "https://fonts.gstatic.com"],
         "img-src": ["'self'", "data:"],
         "connect-src": ["'self'", "https://api.friendlycaptcha.com"],
-        "frame-ancestors": ["'self'"],
+        "frame-ancestors": ["'none'"],
         "base-uri": ["'self'"],
         "form-action": ["'self'"],
         "object-src": ["'none'"],

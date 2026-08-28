@@ -160,12 +160,10 @@ def passes_friendly_captcha_check(captcha_token) -> bool:
         "secret": settings.USER_SIGNUP_CAPTCHA_SECRET_KEY,
         "solution": captcha_token
     })
-    response_data = response.json()
-    # return True so that checks succeed if something goes wrong internally
     if response.status_code != 200:
-        mail_admins("There was an error with friendlycaptcha.", str(response_data))
-        return True
-    return response_data["success"]
+        mail_admins("There was an error with friendlycaptcha.", response.text)
+        return False
+    return response.json()["success"]
 
 
 def reset_password(request, code):

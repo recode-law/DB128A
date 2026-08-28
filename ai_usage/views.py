@@ -103,5 +103,5 @@ class UpdateAIFeedbackFormView(UserPassesTestMixin, LoginRequiredMixin, AIFeedba
 
     def test_func(self):
         feedback = AIFeedback.objects.get(pk=self.kwargs["pk"])
-        court = Court.objects.get(pd=self.kwargs["court_id"])
+        court = Court.objects.get(pk=self.kwargs["court_id"])
         return is_member(self.request.user, "Verifiziert") and feedback.user == self.request.user and feedback.court == court

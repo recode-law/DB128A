@@ -184,10 +184,7 @@ COURT_LIST_LIMIT = int(os.environ.get("VVDE_COURT_LIST_LIMIT", 20))
 
 # security headers
 
-# Report-only for now: violations are logged to the browser console but nothing is blocked.
-# Switch to CONTENT_SECURITY_POLICY once verified clean across the site (captcha, charts,
-# cookie banner, and AI feedback pages all use inline scripts/styles or third-party origins).
-CONTENT_SECURITY_POLICY_REPORT_ONLY = {
+CONTENT_SECURITY_POLICY = {
     "DIRECTIVES": {
         "default-src": ["'self'"],
         # 'wasm-unsafe-eval' and worker-src blob: are needed for the Friendly Captcha widget,

@@ -9,7 +9,7 @@ Both modes share the `court_database`, `user_signup`, and `helper` apps (court d
 
 ## Requirements
 
-- Python 3.10 or newer (required by Django 5.0)
+- Python 3.10 (specifically 3.10, because some library code does not work on newer python functions. Maybe this will be adressed in the future.)
 - The Python packages listed in [requirements.txt](requirements.txt):
 
   ```bash

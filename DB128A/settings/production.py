@@ -34,3 +34,16 @@ DATABASES = {
         'PORT': os.environ.get('VVDE_DB_PORT')
     }
 }
+
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+# 60 seconds for now; raise toward 31536000 (1 year) once HTTPS is confirmed stable in production.
+SECURE_HSTS_SECONDS = 60
+
+# SECURE_HSTS_INCLUDE_SUBDOMAINS / SECURE_HSTS_PRELOAD are intentionally not set: in the future
+# subdomains of videoverhandlung.de / ki-vor-gericht.de may be HTTP-only, and
+# includeSubDomains would make browsers refuse plain HTTP on those subdomains for the
+# duration of SECURE_HSTS_SECONDS.
+SILENCED_SYSTEM_CHECKS = ["security.W005", "security.W021"]

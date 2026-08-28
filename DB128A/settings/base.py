@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'dbbackup',
     'django_object_actions',
     'django_prose_editor',
+    'csp',
     'court_database.apps.CourtDatabaseConfig',
     'user_signup.apps.UserSignupConfig',
     'video_conference.apps.VideoConferenceConfig',
@@ -45,6 +46,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'csp.middleware.CSPMiddleware',
+    'django_permissions_policy.PermissionsPolicyMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -177,3 +180,41 @@ DBBACKUP_STORAGE_OPTIONS = {
 # rest_api
 
 COURT_LIST_LIMIT = int(os.environ.get("VVDE_COURT_LIST_LIMIT", 20))
+
+
+# security headers
+
+# Report-only for now: violations are logged to the browser console but nothing is blocked.
+# Switch to CONTENT_SECURITY_POLICY once verified clean across the site (captcha, charts,
+# cookie banner, and AI feedback pages all use inline scripts/styles or third-party origins).
+CONTENT_SECURITY_POLICY_REPORT_ONLY = {
+    "DIRECTIVES": {
+        "default-src": ["'self'"],
+        # 'wasm-unsafe-eval' and worker-src blob: are needed for the Friendly Captcha widget,
+        # which runs its proof-of-work solver as WebAssembly inside a blob: Web Worker.
+        "script-src": ["'self'", "'unsafe-inline'", "'wasm-unsafe-eval'", "https://cdn.jsdelivr.net", "https://www.gstatic.com"],
+        "worker-src": ["'self'", "blob:"],
+        "style-src": ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com"],
+        "font-src": ["'self'", "https://cdn.jsdelivr.net", "https://fonts.gstatic.com"],
+        "img-src": ["'self'", "data:"],
+        "connect-src": ["'self'", "https://api.friendlycaptcha.com"],
+        "frame-ancestors": ["'self'"],
+        "base-uri": ["'self'"],
+        "form-action": ["'self'"],
+        "object-src": ["'none'"],
+    },
+}
+
+# The site doesn't use any of these browser features anywhere, so deny them outright.
+PERMISSIONS_POLICY = {
+    "camera": [],
+    "microphone": [],
+    "geolocation": [],
+    "payment": [],
+    "usb": [],
+    "magnetometer": [],
+    "gyroscope": [],
+    "accelerometer": [],
+    "interest-cohort": [],
+    "browsing-topics": [],
+}
